@@ -22,4 +22,21 @@ export interface Decision {
   options: Option[];
   timestamp: Date;
   selectedOptionId?: string;
+  aiSuggestions?: AISuggestion[];
+}
+
+export interface AISuggestion {
+  id: string;
+  type: 'pro' | 'con' | 'option' | 'insight';
+  content: string;
+  confidence: number;
+  optionId?: string;
+}
+
+export interface AIAnalysis {
+  recommendation: string;
+  reasoning: string;
+  riskFactors: string[];
+  opportunities: string[];
+  confidence: number;
 }

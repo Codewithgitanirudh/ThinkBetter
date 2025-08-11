@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useDecision } from '@/context/DecisionContext';
 import { Option } from '@/types';
 import { motion } from 'framer-motion';
+import { Edit2, Trash2, Plus, X, Crown } from 'lucide-react';
 
 interface OptionCardProps {
   option: Option;
@@ -40,137 +41,169 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score > 0) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
+    if (score < 0) return 'text-red-600 bg-red-100 dark:bg-red-900/20';
+    return 'text-gray-600 bg-gray-100 dark:bg-gray-700';
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`p-4 rounded-lg shadow-md ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-white'}`}
+      className={`relative p-6 rounded-xl shadow-lg transition-all duration-300 ${
+        isSelected 
+          ? 'ring-2 ring-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20' 
+          : 'bg-white dark:bg-gray-800 hover:shadow-xl'
+      }`}
     >
+      {/* Selected Badge */}
+      {isSelected && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white p-2 rounded-full shadow-lg"
+        >
+          <Crown size={16} />
+        </motion.div>
+      )}
+
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         {isEditing ? (
-          <div className="flex w-full">
+          <div className="flex w-full space-x-2">
             <input
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="flex-1 p-2 border rounded mr-2"
+              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500"
               autoFocus
             />
             <button
               onClick={handleUpdateTitle}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
               Save
             </button>
           </div>
         ) : (
           <>
-            <h3 className="text-lg font-semibold">{option.title}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{option.title}</h3>
             <div className="flex space-x-2">
               <button
                 onClick={() => setIsEditing(true)}
-                className="p-1 text-gray-500 hover:text-gray-700"
+                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
               >
-                Edit
+                <Edit2 size={16} />
               </button>
               <button
                 onClick={() => removeOption(option.id)}
-                className="p-1 text-red-500 hover:text-red-700"
+                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               >
-                Delete
+                <Trash2 size={16} />
               </button>
             </div>
           </>
         )}
       </div>
 
-      <div className="flex justify-between mb-4">
-        <div className="w-1/2 pr-2">
-          <h4 className="font-medium text-green-600 mb-2">Pros (+{option.pros.length})</h4>
-          <ul className="space-y-2">
-            {option.pros.map((pro) => (
-              <motion.li
-                key={pro.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex justify-between items-center bg-green-50 p-2 rounded"
-              >
-                <span>{pro.text}</span>
-                <button
-                  onClick={() => removePro(option.id, pro.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ×
-                </button>
-              </motion.li>
-            ))}
-          </ul>
-          <form onSubmit={handleAddPro} className="mt-2">
-            <div className="flex">
-              <input
-                type="text"
-                value={proText}
-                onChange={(e) => setProText(e.target.value)}
-                placeholder="Add a pro"
-                className="flex-1 p-2 border rounded-l"
-              />
-              <button
-                type="submit"
-                className="px-3 py-2 bg-green-500 text-white rounded-r hover:bg-green-600"
-              >
-                +
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div className="w-1/2 pl-2">
-          <h4 className="font-medium text-red-600 mb-2">Cons (-{option.cons.length})</h4>
-          <ul className="space-y-2">
-            {option.cons.map((con) => (
-              <motion.li
-                key={con.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex justify-between items-center bg-red-50 p-2 rounded"
-              >
-                <span>{con.text}</span>
-                <button
-                  onClick={() => removeCon(option.id, con.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ×
-                </button>
-              </motion.li>
-            ))}
-          </ul>
-          <form onSubmit={handleAddCon} className="mt-2">
-            <div className="flex">
-              <input
-                type="text"
-                value={conText}
-                onChange={(e) => setConText(e.target.value)}
-                placeholder="Add a con"
-                className="flex-1 p-2 border rounded-l"
-              />
-              <button
-                type="submit"
-                className="px-3 py-2 bg-red-500 text-white rounded-r hover:bg-red-600"
-              >
-                +
-              </button>
-            </div>
-          </form>
+      {/* Score Display */}
+      <div className="mb-6">
+        <div className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-lg ${getScoreColor(option.score)}`}>
+          Score: {option.score}
         </div>
       </div>
 
-      <div className="text-center">
-        <span className={`text-xl font-bold ${option.score > 0 ? 'text-green-600' : option.score < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-          Score: {option.score}
-        </span>
+      {/* Pros and Cons */}
+      <div className="space-y-6">
+        {/* Pros Section */}
+        <div>
+          <h4 className="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
+            <span className="bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-full text-sm mr-2">
+              +{option.pros.length}
+            </span>
+            Pros
+          </h4>
+          <div className="space-y-2 mb-3">
+            {option.pros.map((pro) => (
+              <motion.div
+                key={pro.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-lg"
+              >
+                <span className="text-green-800 dark:text-green-200">{pro.text}</span>
+                <button
+                  onClick={() => removePro(option.id, pro.id)}
+                  className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
+                >
+                  <X size={16} />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+          <form onSubmit={handleAddPro} className="flex space-x-2">
+            <input
+              type="text"
+              value={proText}
+              onChange={(e) => setProText(e.target.value)}
+              placeholder="Add a positive aspect..."
+              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-green-500"
+            />
+            <button
+              type="submit"
+              className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center"
+            >
+              <Plus size={16} />
+            </button>
+          </form>
+        </div>
+
+        {/* Cons Section */}
+        <div>
+          <h4 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center">
+            <span className="bg-red-100 dark:bg-red-900/20 px-2 py-1 rounded-full text-sm mr-2">
+              -{option.cons.length}
+            </span>
+            Cons
+          </h4>
+          <div className="space-y-2 mb-3">
+            {option.cons.map((con) => (
+              <motion.div
+                key={con.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex justify-between items-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg"
+              >
+                <span className="text-red-800 dark:text-red-200">{con.text}</span>
+                <button
+                  onClick={() => removeCon(option.id, con.id)}
+                  className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
+                >
+                  <X size={16} />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+          <form onSubmit={handleAddCon} className="flex space-x-2">
+            <input
+              type="text"
+              value={conText}
+              onChange={(e) => setConText(e.target.value)}
+              placeholder="Add a negative aspect..."
+              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-red-500"
+            />
+            <button
+              type="submit"
+              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center"
+            >
+              <Plus size={16} />
+            </button>
+          </form>
+        </div>
       </div>
     </motion.div>
   );

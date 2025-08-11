@@ -5,6 +5,7 @@ import { useDecision } from '@/context/DecisionContext';
 import OptionCard from './OptionCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import ResultDisplay from './ResultDisplay';
+import { Plus, Sparkles, Save, RotateCcw } from 'lucide-react';
 
 export default function DecisionForm() {
   const { 
@@ -43,64 +44,65 @@ export default function DecisionForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="space-y-8">
+      {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
       >
-        <h1 className="text-3xl font-bold text-center mb-6">Decision Helper</h1>
-        
         <div className="mb-6">
-          <label htmlFor="decision-title" className="block text-sm font-medium text-gray-700 mb-1">
-            Decision Title
+          <label htmlFor="decision-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            What are you deciding?
           </label>
           <input
             id="decision-title"
             type="text"
             value={currentDecision.title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What are you deciding?"
-            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            placeholder="e.g., Which job offer should I accept?"
+            className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-lg"
           />
         </div>
 
-        <form onSubmit={handleAddOption} className="mb-6">
-          <label htmlFor="option-title" className="block text-sm font-medium text-gray-700 mb-1">
-            Add Option (2-5)
+        <form onSubmit={handleAddOption} className="space-y-4">
+          <label htmlFor="option-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Add your options ({currentDecision.options.length}/5)
           </label>
-          <div className="flex">
+          <div className="flex space-x-3">
             <input
               id="option-title"
               type="text"
               value={optionTitle}
               onChange={(e) => setOptionTitle(e.target.value)}
-              placeholder="Enter an option"
-              className="flex-1 p-3 border border-gray-300 rounded-l-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter an option..."
+              className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
               disabled={currentDecision.options.length >= 5}
             />
             <button
               type="submit"
-              className="px-4 py-3 bg-blue-600 text-white font-medium rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
               disabled={!optionTitle.trim() || currentDecision.options.length >= 5}
             >
-              Add
+              <Plus size={20} />
+              <span>Add</span>
             </button>
           </div>
           {currentDecision.options.length >= 5 && (
-            <p className="mt-1 text-sm text-amber-600">Maximum 5 options allowed</p>
+            <p className="text-sm text-amber-600 dark:text-amber-400">Maximum 5 options allowed</p>
           )}
         </form>
       </motion.div>
 
+      {/* Options Grid */}
       {currentDecision.options.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mb-8"
+          className="space-y-6"
         >
-          <h2 className="text-xl font-semibold mb-4">Your Options</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Options</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AnimatePresence>
               {currentDecision.options.map((option) => (
                 <OptionCard
@@ -114,68 +116,76 @@ export default function DecisionForm() {
         </motion.div>
       )}
 
+      {/* Decision Actions */}
       {currentDecision.options.length >= 2 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-8"
+          className="space-y-6"
         >
-          <button
-            onClick={helpMeDecide}
-            className="px-6 py-3 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 mb-4"
-          >
-            Help Me Decide
-          </button>
+          {/* Help Me Decide Button */}
+          <div className="text-center">
+            <button
+              onClick={helpMeDecide}
+              className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 text-lg flex items-center space-x-3 mx-auto"
+            >
+              <Sparkles size={24} />
+              <span>Help Me Decide</span>
+            </button>
+          </div>
 
+          {/* Result Display */}
           {currentDecision.selectedOptionId && (
             <ResultDisplay />
+          )}
+
+          {/* Save/Reset Actions */}
+          {currentDecision.title && (
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleSaveDecision}
+                disabled={loading}
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
+              >
+                <Save size={20} />
+                <span>{loading ? 'Saving...' : 'Save Decision'}</span>
+              </button>
+              <button
+                onClick={resetForm}
+                className="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300 flex items-center space-x-2"
+              >
+                <RotateCcw size={20} />
+                <span>Reset</span>
+              </button>
+            </div>
           )}
         </motion.div>
       )}
 
-      {currentDecision.options.length >= 2 && currentDecision.title && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex justify-center space-x-4"
-        >
-          <button
-            onClick={handleSaveDecision}
-            disabled={loading}
-            className="px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
+      {/* Messages */}
+      <AnimatePresence>
+        {saveMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="p-4 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-lg text-center"
           >
-            {loading ? 'Saving...' : 'Save Decision'}
-          </button>
-          <button
-            onClick={resetForm}
-            className="px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            {saveMessage}
+          </motion.div>
+        )}
+
+        {saveError && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="p-4 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg text-center"
           >
-            Reset
-          </button>
-        </motion.div>
-      )}
-
-      {saveMessage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="mt-4 p-3 bg-green-100 text-green-700 rounded-md text-center"
-        >
-          {saveMessage}
-        </motion.div>
-      )}
-
-      {saveError && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="mt-4 p-3 bg-red-100 text-red-700 rounded-md text-center"
-        >
-          {saveError}
-        </motion.div>
-      )}
+            {saveError}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

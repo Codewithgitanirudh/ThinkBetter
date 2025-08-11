@@ -174,7 +174,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
   };
 
   // Calculate scores for all options
-  const calculateScores = () => {
+  const   calculateScores = () => {
     setCurrentDecision(prev => ({
       ...prev,
       options: prev.options.map(option => ({
