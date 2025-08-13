@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+
+export default {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -20,7 +21,9 @@ module.exports = {
           500: '#8b5cf6',
           600: '#7c3aed',
           700: '#6d28d9',
-        }
+        },
+        bg: 'var(--bg-color)',
+        text: 'var(--text-color)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
