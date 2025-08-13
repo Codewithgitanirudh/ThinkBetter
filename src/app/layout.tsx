@@ -5,6 +5,7 @@ import { DecisionProvider } from '@/context/DecisionContext';
 import Sidebar from '@/components/Sidebar';
 import AIAssistant from '@/components/AIAssistant';
 import ThemeToggle from '@/components/ThemeToggle';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
           </div>
         </DecisionProvider>
       </body>
+      <SpeedInsights />
     </html>
   );
 }
