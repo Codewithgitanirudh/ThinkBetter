@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { DecisionProvider } from '@/context/DecisionContext';
 import Sidebar from '@/components/Sidebar';
 import AIAssistant from '@/components/AIAssistant';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,11 +22,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <DecisionProvider>
-          <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="flex h-screen bg-bg text-text">
             <Sidebar />
             <main className="flex-1 overflow-y-auto md:ml-0">
               {children}
             </main>
+             <ThemeToggle />
             <AIAssistant />
           </div>
         </DecisionProvider>
