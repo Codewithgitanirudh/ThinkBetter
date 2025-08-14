@@ -1,5 +1,4 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import { useDecision } from '@/context/DecisionContext';
 import { motion } from 'framer-motion';
