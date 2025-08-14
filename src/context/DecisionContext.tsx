@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
 import { Decision, Option, Pro, Con } from '@/types';
 
 interface DecisionContextType {
@@ -36,27 +37,32 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
   const [currentDecision, setCurrentDecision] = useState<Decision>(initialDecision);
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Fetch decisions from Firestore
+  // Fetch decisions from Firestore for the authenticated user
   useEffect(() => {
     const fetchDecisions = async () => {
+      if (!user) {
+        setDecisions([]);
+        return;
+      }
       setLoading(true);
       try {
-        const q = query(collection(db, 'decisions'), orderBy('timestamp', 'desc'));
+        const q = query(collection(db, 'users', user.uid, 'decisions'), orderBy('timestamp', 'desc'));
         const querySnapshot = await getDocs(q);
         const decisionsData: Decision[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
+
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data() as any;
           decisionsData.push({
-            id: doc.id,
+            id: docSnap.id,
             title: data.title,
             options: data.options,
-            timestamp: data.timestamp.toDate(),
+            timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(),
             selectedOptionId: data.selectedOptionId,
           });
         });
-        
+
         setDecisions(decisionsData);
       } catch (error) {
         console.error('Error fetching decisions:', error);
@@ -66,7 +72,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     };
 
     fetchDecisions();
-  }, []);
+  }, [user]);
 
   // Set decision title
   const setTitle = (title: string) => {
@@ -203,10 +209,13 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Save decision to Firestore
+  // Save decision to Firestore (requires auth)
   const saveDecision = async () => {
     if (!currentDecision.title || currentDecision.options.length === 0) {
       throw new Error('Decision must have a title and at least one option');
+    }
+    if (!user) {
+      throw new Error('Please sign in to save your decision');
     }
 
     setLoading(true);
@@ -220,7 +229,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
       };
 
       // Add the document to Firestore
-      const docRef = await addDoc(collection(db, 'decisions'), decisionData);
+      const docRef = await addDoc(collection(db, 'users', user.uid, 'decisions'), decisionData);
       
       // Update the local state with the new decision
       const newDecision = {

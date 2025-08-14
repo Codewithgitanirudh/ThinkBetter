@@ -74,7 +74,7 @@ export default function AIInsightsPage() {
               Make some decisions first to see AI-powered insights and patterns
             </p>
             <Link 
-              href="/"
+              href="/app"
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
             >
               <Brain size={20} className="mr-2" />

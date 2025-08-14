@@ -42,22 +42,22 @@ export default function Sidebar() {
   const navigation = [
     {
       name: 'Decision Maker',
-      href: '/',
+      href: '/app',
       icon: Home,
-      current: pathname === '/',
+      current: pathname === '/app',
     },
     {
       name: 'History',
-      href: '/history',
+      href: '/app/history',
       icon: History,
-      current: pathname === '/history',
+      current: pathname === '/app/history',
       badge: decisions.length > 0 ? decisions.length : undefined,
     },
     {
       name: 'AI Insights',
-      href: '/ai-insights',
+      href: '/app/ai-insights',
       icon: Brain,
-      current: pathname === '/ai-insights',
+      current: pathname === '/app/ai-insights',
       badge: 'New',
     },
     {

@@ -1,16 +1,32 @@
 'use client';
 
 import { useDecision } from '@/context/DecisionContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function HistoryList() {
   const { decisions, loading } = useDecision();
+  const { user, loading: authLoading, signInWithGoogle } = useAuth();
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-10">
+        <h3 className="text-xl font-medium text-gray-600">Sign in to view your decision history</h3>
+        <button
+          onClick={signInWithGoogle}
+          className="mt-4 inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+        >
+          Sign in with Google
+        </button>
       </div>
     );
   }
