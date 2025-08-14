@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Brain, TrendingUp, Lightbulb, AlertTriangle, Target } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function AIInsightsPage() {
   const { decisions, currentDecision } = useDecision();
 

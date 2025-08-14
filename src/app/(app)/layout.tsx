@@ -2,6 +2,7 @@ import Sidebar from '@/components/Sidebar';
 import AuthButtons from '@/components/AuthButtons';
 import ThemeToggle from '@/components/ThemeToggle';
 import AIAssistant from '@/components/AIAssistant';
+export const dynamic = 'force-dynamic';
 
 export default function AppLayout({
   children,
