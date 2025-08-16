@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
 
   // Auth paths
   if ((path === '/login' || path === '/signup') && token) {
-    return NextResponse.redirect(new URL('/app/dashboard', request.url));
+    return NextResponse.redirect(new URL('/app', request.url));
   }
 }
 

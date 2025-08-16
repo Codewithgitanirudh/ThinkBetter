@@ -1,18 +1,68 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import Link from 'next/link';
 
 import AuthButtons from '@/components/AuthButtons';
 
+type FormState = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  showPassword: boolean;
+  showConfirmPassword: boolean;
+};
+
+type FormAction = 
+  | { type: 'SET_EMAIL'; payload: string }
+  | { type: 'SET_PASSWORD'; payload: string }
+  | { type: 'SET_CONFIRM_PASSWORD'; payload: string }
+  | { type: 'TOGGLE_PASSWORD_VISIBILITY' }
+  | { type: 'TOGGLE_CONFIRM_PASSWORD_VISIBILITY' };
+
+const formReducer = (state: FormState, action: FormAction): FormState => {
+  switch (action.type) {
+    case 'SET_EMAIL':
+      return { ...state, email: action.payload };
+    case 'SET_PASSWORD':
+      return { ...state, password: action.payload };
+    case 'SET_CONFIRM_PASSWORD':
+      return { ...state, confirmPassword: action.payload };
+    case 'TOGGLE_PASSWORD_VISIBILITY':
+      return { ...state, showPassword: !state.showPassword };
+    case 'TOGGLE_CONFIRM_PASSWORD_VISIBILITY':
+      return { ...state, showConfirmPassword: !state.showConfirmPassword };
+    default:
+      return state;
+  }
+};
+
+const PasswordVisibilityIcon = ({ visible }: { visible: boolean }) => (
+  visible ? (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  )
+);
+
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formState, dispatch] = useReducer(formReducer, {
+    email: '',
+    password: '',
+    confirmPassword: '',
+    showPassword: false,
+    showConfirmPassword: false,
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -20,7 +70,7 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
+    if (formState.password !== formState.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
@@ -29,8 +79,9 @@ export default function SignupPage() {
     setError('');
     
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/');
+      const result = await createUserWithEmailAndPassword(auth, formState.email, formState.password);
+      await sendEmailVerification(result.user);
+      router.push('/verify-email?status=pending');
     } catch (err) {
       setError('Error creating account. Please try again.');
       setLoading(false);
@@ -64,42 +115,56 @@ export default function SignupPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formState.email}
+                onChange={(e) => dispatch({ type: 'SET_EMAIL', payload: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={formState.showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formState.password}
+                onChange={(e) => dispatch({ type: 'SET_PASSWORD', payload: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               />
+              <button
+                type="button"
+                className="absolute right-3 top-8 text-gray-400 hover:text-gray-500"
+                onClick={() => dispatch({ type: 'TOGGLE_PASSWORD_VISIBILITY' })}
+              > 
+                <PasswordVisibilityIcon visible={formState.showPassword} />
+              </button>
             </div>
 
-            <div>
+            <div className="relative">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password
               </label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
+                type={formState.showConfirmPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formState.confirmPassword}
+                onChange={(e) => dispatch({ type: 'SET_CONFIRM_PASSWORD', payload: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               />
+              <button
+                type="button"
+                className="absolute right-3 top-8 text-gray-400 hover:text-gray-500"
+                onClick={() => dispatch({ type: 'TOGGLE_CONFIRM_PASSWORD_VISIBILITY' })}
+              >
+                <PasswordVisibilityIcon visible={formState.showConfirmPassword} />
+              </button>
             </div>
 
             <div>

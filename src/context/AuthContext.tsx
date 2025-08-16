@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await signInWithPopup(auth, googleProvider);
       // Set cookie on successful login
       Cookies.set('token', await result.user.getIdToken(), { expires: 7 });
+      router.push('/app');
     } catch (error) {
       console.error(error);
     }
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut(auth);
       // Remove cookie on logout
       Cookies.remove('token');
+      router.push('/');
     } catch (error) {
       console.error(error);
     }
