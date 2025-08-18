@@ -43,9 +43,8 @@ export default function HistoryList() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Decision History</h2>
-      <div className="space-y-4">
+    <div className="max-w-4xl mx-auto p-4 ">
+      <div className="space-y-8">
         {decisions.map((decision, index) => {
           const selectedOption = decision.options.find(
             option => option.id === decision.selectedOptionId
@@ -57,7 +56,7 @@ export default function HistoryList() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white p-4 rounded-lg shadow-md"
+              className="bg-gray-800 p-4 rounded-lg shadow-md"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -69,7 +68,7 @@ export default function HistoryList() {
                 <div className="text-right">
                   <p className="text-sm">{decision.options.length} options</p>
                   {selectedOption && (
-                    <p className="font-medium text-blue-600">
+                    <p className="font-medium text-cyan-400">
                       Choice: {selectedOption.title} (Score: {selectedOption.score})
                     </p>
                   )}
@@ -80,13 +79,13 @@ export default function HistoryList() {
                 {decision.options.map(option => (
                   <div 
                     key={option.id} 
-                    className={`p-3 rounded-md ${option.id === decision.selectedOptionId ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
+                    className={`p-3 rounded-md ${option.id === decision.selectedOptionId ? 'bg-slate-700 border-[2px] border-amber-700' : 'bg-slate-600'}`}
                   >
-                    <p className="font-medium">{option.title}</p>
+                    <p className="font-medium text-white">{option.title}</p>
                     <div className="flex justify-between text-sm mt-1">
-                      <span className="text-green-600">+{option.pros.length}</span>
-                      <span className="text-red-600">-{option.cons.length}</span>
-                      <span className={`font-medium ${option.score > 0 ? 'text-green-600' : option.score < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                      <span className="text-green-400">+{option.pros.length}</span>
+                      <span className="text-red-400">-{option.cons.length}</span>
+                      <span className={`font-medium ${option.score > 0 ? 'text-green-400' : option.score < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                         Score: {option.score}
                       </span>
                     </div>

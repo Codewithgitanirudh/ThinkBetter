@@ -11,37 +11,111 @@ export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
 
-  // Mock AI analysis function (replace with actual AI service)
+  // Real AI analysis function using API
   const generateAIAnalysis = async (): Promise<AIAnalysis> => {
     setIsAnalyzing(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    try {
+      const response = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decision: currentDecision }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setIsAnalyzing(false);
+      return data.analysis;
+    } catch (error) {
+      console.error('AI Analysis error:', error);
+      setIsAnalyzing(false);
+      
+      // Fallback analysis if API fails
+      return getFallbackAnalysis();
+    }
+  };
+
+  const getFallbackAnalysis = (): AIAnalysis => {
     const options = currentDecision.options;
-    const highestScore = Math.max(...options.map(o => o.score));
-    const topOption = options.find(o => o.score === highestScore);
+    const priorities = currentDecision.priorities || [];
     
-    // Mock AI analysis based on current decision
-    const mockAnalysis: AIAnalysis = {
-      recommendation: topOption ? topOption.title : "Consider gathering more information",
-      reasoning: `Based on the pros and cons analysis, ${topOption?.title || 'the top option'} has the highest score of ${highestScore}. This suggests it has the most favorable balance of positive and negative factors.`,
-      riskFactors: [
-        "Consider long-term implications beyond immediate pros/cons",
-        "Verify that all important factors have been considered",
-        "Check for potential biases in your evaluation"
-      ],
-      opportunities: [
-        "This decision could open new pathways for growth",
-        "Consider combining elements from multiple options",
-        "Think about how this aligns with your long-term goals"
-      ],
-      confidence: Math.min(95, Math.max(60, 60 + (options.length * 10) + (highestScore * 5)))
+    let topOption = options.reduce((best, current) => 
+      current.score > best.score ? current : best
+    );
+
+    // If priorities are available, calculate weighted scores
+    let priorityScores: AIAnalysis['priorityScores'] = undefined;
+    
+    if (priorities.length > 0) {
+      priorityScores = options.map(option => {
+        const scores = priorities.map(priority => {
+          // Simple heuristic scoring based on pros/cons
+          let score = 5; // baseline score
+          
+          // Check if option has pros/cons related to this priority
+          const relatedPros = option.pros.filter(pro => 
+            pro.text.toLowerCase().includes(priority.name.toLowerCase())
+          );
+          const relatedCons = option.cons.filter(con => 
+            con.text.toLowerCase().includes(priority.name.toLowerCase())
+          );
+          
+          score += relatedPros.length * 1.5;
+          score -= relatedCons.length * 1.5;
+          score = Math.max(0, Math.min(10, score)); // Keep within 0-10
+          
+          return {
+            priority: priority.name,
+            score: Math.round(score * 10) / 10,
+            weightedScore: Math.round((score * priority.weight / 100) * 10) / 10
+          };
+        });
+        
+        const totalScore = scores.reduce((sum, s) => sum + s.weightedScore, 0);
+        
+        return {
+          optionId: option.id,
+          optionName: option.title,
+          scores,
+          totalScore: Math.round(totalScore * 10) / 10
+        };
+      });
+      
+      // Update recommendation based on priority scores
+      const highestScoringOption = priorityScores.reduce((best, current) =>
+        current.totalScore > best.totalScore ? current : best
+      );
+      
+      topOption = options.find(o => o.id === highestScoringOption.optionId) || topOption;
+    }
+
+    return {
+      recommendation: topOption ? topOption.title : "Unable to determine",
+      reasoning: priorityScores 
+        ? `Based on priority-weighted analysis, ${topOption.title} scores highest. AI analysis temporarily unavailable - using simplified scoring method.`
+        : "AI analysis temporarily unavailable. Recommendation based on current scoring.",
+      riskFactors: ["AI analysis not available", "Simplified scoring method used", "Manual review recommended"],
+      opportunities: ["Consider expert consultation", "Research additional factors", "Try AI analysis later"],
+      longTermBenefits: ["Selected option shows favorable indicators"],
+      potentialDrawbacks: ["Limited analysis available", "Scoring may not capture all nuances"],
+      alternativeOptions: ["Seek additional input", "Delay decision if possible", "Re-run analysis when AI is available"],
+      confidence: priorityScores ? 60 : 40,
+      uncertaintyAreas: ["AI service unavailable", "Simplified analysis method"],
+      keyFactors: [],
+      priorityScores,
+      timeHorizon: {
+        shortTerm: "Proceed with caution using available analysis",
+        mediumTerm: "Monitor outcomes and re-analyze when AI available",
+        longTerm: "Reassess with full AI analysis"
+      }
     };
-    
-    setIsAnalyzing(false);
-    return mockAnalysis;
   };
 
   const handleAnalyze = async () => {
@@ -52,9 +126,9 @@ export default function AIAssistant() {
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-500';
-    if (confidence >= 60) return 'text-yellow-500';
-    return 'text-red-500';
+    if (confidence >= 80) return 'text-primary';
+    if (confidence >= 60) return 'text-accent';
+    return 'text-accent';
   };
 
   return (
@@ -62,19 +136,19 @@ export default function AIAssistant() {
       {/* AI Assistant Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 p-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 z-30"
+        className="fixed bottom-6 right-6 p-4 bg-primary text-darkBg rounded-full shadow-2xl hover:shadow-primary/25 transition-all duration-300 z-50"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        disabled={currentDecision.options.length < 2}
+        style={{ zIndex: 9999 }}
       >
         <Brain size={24} />
         {currentDecision.options.length >= 2 && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center"
           >
-            <Sparkles size={12} className="text-white" />
+            <Sparkles size={12} className="text-darkBg" />
           </motion.div>
         )}
       </motion.button>
@@ -88,8 +162,9 @@ export default function AIAssistant() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              className="fixed inset-0 bg-darkBg bg-opacity-75 z-50"
               onClick={() => setIsOpen(false)}
+              style={{ zIndex: 9998 }}
             />
 
             {/* Panel */}
@@ -98,23 +173,24 @@ export default function AIAssistant() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-900 shadow-2xl z-50 overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-[450px] bg-darkSurface shadow-2xl z-50 overflow-y-auto border-l border-darkBg"
+              style={{ zIndex: 9999 }}
             >
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
-                      <Brain size={20} className="text-white" />
+                    <div className="p-2 bg-primary rounded-lg">
+                      <Brain size={20} className="text-darkBg" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold">AI Assistant</h2>
-                      <p className="text-sm text-gray-500">Intelligent decision analysis</p>
+                      <h2 className="text-xl font-bold text-text">AI Assistant</h2>
+                      <p className="text-sm text-text">Intelligent decision analysis</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="p-2 hover:bg-darkBg rounded-lg transition-colors text-text"
                   >
                     <X size={20} />
                   </button>
@@ -123,11 +199,11 @@ export default function AIAssistant() {
                 {/* Content */}
                 {currentDecision.options.length < 2 ? (
                   <div className="text-center py-8">
-                    <Brain size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-600 mb-2">
+                    <Brain size={48} className="mx-auto text-text mb-4" />
+                    <h3 className="text-lg font-medium text-text mb-2">
                       Need More Options
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-text">
                       Add at least 2 options to get AI analysis and recommendations.
                     </p>
                   </div>
@@ -137,11 +213,11 @@ export default function AIAssistant() {
                     <button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing}
-                      className="w-full p-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full p-4 bg-primary text-darkBg rounded-lg hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isAnalyzing ? (
                         <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+                          <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-darkBg"></div>
                           <span>Analyzing...</span>
                         </div>
                       ) : (
@@ -160,21 +236,21 @@ export default function AIAssistant() {
                         className="space-y-4"
                       >
                         {/* Recommendation */}
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                        <div className="bg-darkBg p-4 rounded-lg border border-primary">
                           <div className="flex items-center space-x-2 mb-2">
-                            <TrendingUp size={16} className="text-blue-600" />
-                            <h3 className="font-semibold text-blue-800 dark:text-blue-200">
+                            <TrendingUp size={16} className="text-primary" />
+                            <h3 className="font-semibold text-primary">
                               AI Recommendation
                             </h3>
                           </div>
-                          <p className="text-blue-700 dark:text-blue-300 font-medium mb-2">
+                          <p className="text-primary font-medium mb-2">
                             {analysis.recommendation}
                           </p>
-                          <p className="text-sm text-blue-600 dark:text-blue-400">
+                          <p className="text-sm text-text">
                             {analysis.reasoning}
                           </p>
                           <div className="mt-2 flex items-center space-x-2">
-                            <span className="text-sm text-blue-600">Confidence:</span>
+                            <span className="text-sm text-text">Confidence:</span>
                             <span className={`font-bold ${getConfidenceColor(analysis.confidence)}`}>
                               {analysis.confidence}%
                             </span>
@@ -182,17 +258,17 @@ export default function AIAssistant() {
                         </div>
 
                         {/* Risk Factors */}
-                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                        <div className="bg-darkBg p-4 rounded-lg border border-accent">
                           <div className="flex items-center space-x-2 mb-2">
-                            <AlertTriangle size={16} className="text-red-600" />
-                            <h3 className="font-semibold text-red-800 dark:text-red-200">
+                            <AlertTriangle size={16} className="text-accent" />
+                            <h3 className="font-semibold text-accent">
                               Risk Factors
                             </h3>
                           </div>
                           <ul className="space-y-1">
                             {analysis.riskFactors.map((risk, index) => (
-                              <li key={index} className="text-sm text-red-700 dark:text-red-300 flex items-start space-x-2">
-                                <span className="text-red-500 mt-1">•</span>
+                              <li key={index} className="text-sm text-text flex items-start space-x-2">
+                                <span className="text-accent mt-1">•</span>
                                 <span>{risk}</span>
                               </li>
                             ))}
@@ -200,22 +276,122 @@ export default function AIAssistant() {
                         </div>
 
                         {/* Opportunities */}
-                        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                        <div className="bg-darkBg p-4 rounded-lg border border-primary">
                           <div className="flex items-center space-x-2 mb-2">
-                            <Lightbulb size={16} className="text-green-600" />
-                            <h3 className="font-semibold text-green-800 dark:text-green-200">
+                            <Lightbulb size={16} className="text-primary" />
+                            <h3 className="font-semibold text-primary">
                               Opportunities
                             </h3>
                           </div>
                           <ul className="space-y-1">
                             {analysis.opportunities.map((opportunity, index) => (
-                              <li key={index} className="text-sm text-green-700 dark:text-green-300 flex items-start space-x-2">
-                                <span className="text-green-500 mt-1">•</span>
+                              <li key={index} className="text-sm text-text flex items-start space-x-2">
+                                <span className="text-primary mt-1">•</span>
                                 <span>{opportunity}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
+
+                        {/* Long-term Benefits */}
+                        {analysis.longTermBenefits && analysis.longTermBenefits.length > 0 && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-primary">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <TrendingUp size={16} className="text-primary" />
+                              <h3 className="font-semibold text-primary">
+                                Long-term Benefits
+                              </h3>
+                            </div>
+                            <ul className="space-y-1">
+                              {analysis.longTermBenefits.map((benefit, index) => (
+                                <li key={index} className="text-sm text-text flex items-start space-x-2">
+                                  <span className="text-primary mt-1">•</span>
+                                  <span>{benefit}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Time Horizon */}
+                        {analysis.timeHorizon && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-accent">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Sparkles size={16} className="text-accent" />
+                              <h3 className="font-semibold text-accent">
+                                Time Horizon Analysis
+                              </h3>
+                            </div>
+                            <div className="space-y-2">
+                              <div>
+                                <span className="text-accent font-medium">Short-term:</span>
+                                <p className="text-sm text-text">{analysis.timeHorizon.shortTerm}</p>
+                              </div>
+                              <div>
+                                <span className="text-accent font-medium">Medium-term:</span>
+                                <p className="text-sm text-text">{analysis.timeHorizon.mediumTerm}</p>
+                              </div>
+                              <div>
+                                <span className="text-accent font-medium">Long-term:</span>
+                                <p className="text-sm text-text">{analysis.timeHorizon.longTerm}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Priority Scoring Analysis */}
+                        {analysis.priorityScores && analysis.priorityScores.length > 0 && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-primary">
+                            <div className="flex items-center space-x-2 mb-4">
+                              <TrendingUp size={16} className="text-primary" />
+                              <h3 className="font-semibold text-primary">
+                                Priority-Based Scoring
+                              </h3>
+                            </div>
+                            <div className="space-y-3">
+                              {analysis.priorityScores.map((optionScore, index) => (
+                                <div key={index} className="border border-darkSurface rounded-lg p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-medium text-text">{optionScore.optionName}</h4>
+                                    <span className="bg-primary text-darkBg px-2 py-1 rounded font-bold">
+                                      {optionScore.totalScore.toFixed(1)}
+                                    </span>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-xs">
+                                    {optionScore.scores.map((score, scoreIndex) => (
+                                      <div key={scoreIndex} className="flex justify-between">
+                                        <span className="text-text">{score.priority}:</span>
+                                        <span className="text-primary">
+                                          {score.score}/10 × {currentDecision.priorities?.find(p => p.name === score.priority)?.weight}% = {score.weightedScore.toFixed(1)}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Alternative Options */}
+                        {analysis.alternativeOptions && analysis.alternativeOptions.length > 0 && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-accent">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Lightbulb size={16} className="text-accent" />
+                              <h3 className="font-semibold text-accent">
+                                Alternative Approaches
+                              </h3>
+                            </div>
+                            <ul className="space-y-1">
+                              {analysis.alternativeOptions.map((alt, index) => (
+                                <li key={index} className="text-sm text-text flex items-start space-x-2">
+                                  <span className="text-accent mt-1">•</span>
+                                  <span>{alt}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </div>

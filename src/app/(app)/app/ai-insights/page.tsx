@@ -55,7 +55,7 @@ export default function AIInsightsPage() {
   const insights = getInsightCards();
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
+    <div className="relative min-h-screen p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
