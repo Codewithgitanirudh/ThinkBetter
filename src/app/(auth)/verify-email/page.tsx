@@ -1,39 +1,35 @@
-
+        // src/app/(auth)/verify-email/page.tsx
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { applyActionCode } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 
-export default function VerifyEmailPage({
-  searchParams,
-}: {
-  searchParams: { oobCode?: string };
-}) {
+export default function VerifyEmailPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, checkEmailVerification } = useAuth();
 
   useEffect(() => {
-    if (searchParams.oobCode) {
-      // Apply the verification code
-      applyActionCode(auth, searchParams.oobCode)
-        .then(() => {
-          // Redirect to app after successful verification
-          router.push('/app');
-        })
-        .catch((error) => {
-          console.error('Error verifying email:', error);
-          router.push('/login?error=invalid_verification');
-        });
-    } else if (user?.emailVerified) {
-      // Skip if already verified
-      router.push('/app');
-    } else {
-      // No code provided
-      router.push('/login?error=missing_verification');
+    if (!user) {
+      router.push('/login');
+      return;
     }
-  }, [searchParams.oobCode, user, router]);
+
+    // Initial check
+    checkEmailVerification().then((isVerified: boolean) => {
+      if (isVerified) router.push('/app');
+    });
+
+    // Set up polling every 5 seconds
+    const interval = setInterval(async () => {
+      const isVerified = await checkEmailVerification();
+      if (isVerified) {
+        clearInterval(interval);
+        router.push('/app');
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [user, router, checkEmailVerification]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
