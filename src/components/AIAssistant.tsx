@@ -11,7 +11,7 @@ export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
+  console.log(currentDecision, "currentDecision");
 
   // Real AI analysis function using API
   const generateAIAnalysis = async (): Promise<AIAnalysis> => {
@@ -31,6 +31,7 @@ export default function AIAssistant() {
       }
 
       const data = await response.json();
+      console.log(data, "data");
       setIsAnalyzing(false);
       return data.analysis;
     } catch (error) {
@@ -235,22 +236,36 @@ export default function AIAssistant() {
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-4"
                       >
+                        {/* User Priorities Display */}
+                        {currentDecision.priorities && currentDecision.priorities.length > 0 && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-accent">
+                            <div className="flex items-center space-x-2 mb-4">
+                              <TrendingUp size={16} className="text-accent" />
+                              <h3 className="font-semibold text-accent">User Priorities</h3>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              {currentDecision.priorities.map((priority) => (
+                                <div key={priority.id} className="text-center p-3 bg-darkSurface rounded-lg">
+                                  <div className="text-accent font-bold text-xl mb-1">
+                                    {priority.weight}%
+                                  </div>
+                                  <div className="text-text font-medium text-sm">{priority.name}</div>
+                                  {priority.description && (
+                                    <div className="text-text text-xs mt-1">{priority.description}</div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Recommendation */}
                         <div className="bg-darkBg p-4 rounded-lg border border-primary">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <TrendingUp size={16} className="text-primary" />
-                            <h3 className="font-semibold text-primary">
-                              AI Recommendation
-                            </h3>
-                          </div>
-                          <p className="text-primary font-medium mb-2">
-                            {analysis.recommendation}
-                          </p>
-                          <p className="text-sm text-text">
-                            {analysis.reasoning}
-                          </p>
-                          <div className="mt-2 flex items-center space-x-2">
-                            <span className="text-sm text-text">Confidence:</span>
+                          <h4 className="font-semibold text-primary mb-2">📋 AI Recommendation</h4>
+                          <p className="text-primary font-medium mb-2">{analysis.recommendation}</p>
+                          <p className="text-text text-sm mb-2">{analysis.reasoning}</p>
+                          <div className="mt-2">
+                            <span className="text-text text-sm">Confidence: </span>
                             <span className={`font-bold ${getConfidenceColor(analysis.confidence)}`}>
                               {analysis.confidence}%
                             </span>
@@ -339,29 +354,29 @@ export default function AIAssistant() {
                           </div>
                         )}
 
-                        {/* Priority Scoring Analysis */}
+                        {/* Priority Scoring Analysis - Enhanced Display */}
                         {analysis.priorityScores && analysis.priorityScores.length > 0 && (
                           <div className="bg-darkBg p-4 rounded-lg border border-primary">
                             <div className="flex items-center space-x-2 mb-4">
                               <TrendingUp size={16} className="text-primary" />
                               <h3 className="font-semibold text-primary">
-                                Priority-Based Scoring
+                                🧮 Priority-Based Scoring
                               </h3>
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                               {analysis.priorityScores.map((optionScore, index) => (
                                 <div key={index} className="border border-darkSurface rounded-lg p-3">
-                                  <div className="flex justify-between items-center mb-2">
+                                  <div className="flex justify-between items-center mb-3">
                                     <h4 className="font-medium text-text">{optionScore.optionName}</h4>
-                                    <span className="bg-primary text-darkBg px-2 py-1 rounded font-bold">
+                                    <span className="bg-primary text-darkBg px-3 py-1 rounded font-bold text-lg">
                                       {optionScore.totalScore.toFixed(1)}
                                     </span>
                                   </div>
-                                  <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div className="grid grid-cols-1 gap-2 text-sm">
                                     {optionScore.scores.map((score, scoreIndex) => (
-                                      <div key={scoreIndex} className="flex justify-between">
-                                        <span className="text-text">{score.priority}:</span>
-                                        <span className="text-primary">
+                                      <div key={scoreIndex} className="flex justify-between items-center bg-darkSurface p-2 rounded">
+                                        <span className="text-text font-medium">{score.priority}:</span>
+                                        <span className="text-primary font-mono">
                                           {score.score}/10 × {currentDecision.priorities?.find(p => p.name === score.priority)?.weight}% = {score.weightedScore.toFixed(1)}
                                         </span>
                                       </div>
@@ -369,6 +384,20 @@ export default function AIAssistant() {
                                   </div>
                                 </div>
                               ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Calculation Methodology - How It Works */}
+                        {analysis.priorityScores && analysis.priorityScores.length > 0 && (
+                          <div className="bg-darkBg p-4 rounded-lg border border-accent">
+                            <h4 className="font-semibold text-accent mb-2">🧮 How It Works</h4>
+                            <div className="text-sm text-text space-y-2">
+                              <p><strong>Step 1:</strong> AI scores each option against each priority (0-10 scale)</p>
+                              <p><strong>Step 2:</strong> Multiply score by priority weight (score × weight ÷ 100)</p>
+                              <p><strong>Step 3:</strong> Sum all weighted scores for each option</p>
+                              <p><strong>Step 4:</strong> Recommend option with highest total score</p>
+                              <p><strong>Step 5:</strong> Confidence based on score difference (closer = lower confidence)</p>
                             </div>
                           </div>
                         )}

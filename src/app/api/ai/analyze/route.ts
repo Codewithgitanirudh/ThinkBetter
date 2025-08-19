@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       success: true,
       analysis,
       provider: aiService.getCurrentProvider(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString() 
     });
 
   } catch (error) {

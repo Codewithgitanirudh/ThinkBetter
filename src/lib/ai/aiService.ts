@@ -55,6 +55,7 @@ export class AIService {
   }
 
   async analyzeDecision(decision: Decision): Promise<AIAnalysis> {
+    console.log(decision, "decision");
     if (!this.currentProvider) {
       return this.getFallbackAnalysis(decision);
     }
