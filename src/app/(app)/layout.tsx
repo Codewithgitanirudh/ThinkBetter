@@ -1,4 +1,5 @@
 import Sidebar from '@/components/Sidebar';
+import AuthButtons from '@/components/AuthButtons';
 export const dynamic = 'force-dynamic';
 
 export default function AppLayout({
@@ -13,7 +14,7 @@ export default function AppLayout({
         {children}
       </main>
       <div className="fixed top-6 right-24 z-50">
-        {/* <AuthButtons /> */}
+        <AuthButtons />
       </div>
     </div>
   );
