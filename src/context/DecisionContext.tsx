@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import { Decision, Option, Pro, Con } from '@/types';
 
@@ -22,6 +22,9 @@ interface DecisionContextType {
   helpMeDecide: () => void;
   resetForm: () => void;
   loading: boolean;
+  removeDecision: (id: string) => Promise<void>;
+  isopen: boolean;
+  setIsopen: (isopen: boolean) => void;
 }
 
 const initialDecision: Decision = {
@@ -37,6 +40,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
   const [currentDecision, setCurrentDecision] = useState<Decision>(initialDecision);
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isopen, setIsopen] = useState(false);
   const { user } = useAuth();
 
   // Fetch decisions from Firestore for the authenticated user
@@ -248,6 +252,17 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const removeDecision = async (id : string) => {
+    try {
+      await deleteDoc(doc(db, "users", user?.uid || "", "decisions", id))
+      setDecisions(prev => prev.filter(decision => decision.id !== id))
+      setIsopen(false)
+    } catch (error) {
+      console.error('Error deleting decision:', error);
+      throw error;
+    }
+  }
+
   // Reset the form
   const resetForm = () => {
     setCurrentDecision(initialDecision);
@@ -271,6 +286,9 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
         helpMeDecide,
         resetForm,
         loading,
+        removeDecision,
+        isopen,
+        setIsopen
       }}
     >
       {children}

@@ -6,10 +6,10 @@ import Link from 'next/link';
 
 export default function AppHome() {
   return (
-    <div className="min-h-screen p-6 md:p-8 bg-darkBg">
+    <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Hero */}
-        <div className="bg-darkSurface border border-darkSurface rounded-2xl p-8 md:p-10 shadow-sm">
+        <div className="bg-primary-light border border-primary-light rounded-2xl p-8 md:p-10 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-text">
@@ -19,10 +19,10 @@ export default function AppHome() {
                 ThinkBetter helps you weigh options with structured pros/cons, AI-powered insights, and personalized history — so you can act with clarity and confidence.
               </p>
               <div className="mt-6 flex items-center gap-3">
-                <Link href="#make" className="px-6 py-3 bg-primary text-darkBg rounded-lg hover:bg-primary/90 transition-colors">
+                <Link href="#make" scroll={false} replace className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 ease-in-out hover:text-primary-dark">
                   Start now
                 </Link>
-                <Link href="/app/history" className="px-6 py-3 bg-darkBg text-text rounded-lg hover:bg-darkBg/80 transition-colors">
+                <Link href="/app/history" className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-300 ease-in-out">
                   View history
                 </Link>
               </div>
@@ -39,9 +39,7 @@ export default function AppHome() {
         <PriorityDemo />
 
         {/* Decision Maker */}
-        <div id="make" className="">
           <DecisionForm />
-        </div>
       </div>
 
       {/* AI Assistant */}

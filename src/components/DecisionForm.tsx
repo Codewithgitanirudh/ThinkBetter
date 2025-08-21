@@ -44,7 +44,7 @@ export default function DecisionForm() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 mt-10" id="make">
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

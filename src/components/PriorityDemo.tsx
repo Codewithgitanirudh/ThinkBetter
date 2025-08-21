@@ -154,7 +154,7 @@ export default function PriorityDemo() {
           <button
             onClick={() => setShowDemo(true)}
             disabled={!hasEnoughData}
-            className="px-6 py-3 bg-primary text-darkBg rounded-lg hover:bg-primary/90 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:cursor-not-allowed"
           >
             {hasEnoughData ? "Analyze Decision" : "Need More Data"}
           </button>
@@ -185,7 +185,7 @@ export default function PriorityDemo() {
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                className="px-4 py-2 bg-primary text-darkBg rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
                   <div className="flex items-center space-x-2">
