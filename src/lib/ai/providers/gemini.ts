@@ -112,12 +112,12 @@ export class GeminiProvider implements AIProvider {
   private getFallbackAnalysis(decision: Decision): AIAnalysis {
     const options = decision.options;
     const topOption = options.reduce((best, current) => 
-      current.score > best.score ? current : best
+      (current.score ?? 0) > (best.score ?? 0) ? current : best
     );
 
     return {
       recommendation: topOption.title,
-      reasoning: `${topOption.title} has the highest score with ${topOption.pros.length} advantages and ${topOption.cons.length} concerns identified.`,
+      reasoning: `${topOption.title} has the highest score with ${topOption.score ?? 0} advantages and ${topOption.score ?? 0} concerns identified.`,
       riskFactors: ['AI analysis temporarily unavailable', 'Consider seeking additional expert input'],
       opportunities: ['Explore implementation details', 'Research success stories'],
       longTermBenefits: ['Option shows promise based on current evaluation'],

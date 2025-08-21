@@ -104,12 +104,12 @@ export class HuggingFaceProvider implements AIProvider {
   private getFallbackAnalysis(decision: Decision): AIAnalysis {
     const options = decision.options;
     const topOption = options.reduce((best, current) => 
-      current.score > best.score ? current : best
+      (current.score ?? 0) > (best.score ?? 0) ? current : best
     );
 
     return {
       recommendation: topOption.title,
-      reasoning: `Based on current scoring, ${topOption.title} appears most favorable with ${topOption.pros.length} pros and ${topOption.cons.length} cons.`,
+      reasoning: `Based on current scoring, ${topOption.title} appears most favorable with ${topOption.score ?? 0} pros and ${topOption.score ?? 0} cons.`,
       riskFactors: ['AI analysis temporarily unavailable', 'Manual verification recommended'],
       opportunities: ['Consider additional research', 'Seek expert opinions'],
       longTermBenefits: ['Selected option has favorable immediate indicators'],
@@ -130,7 +130,7 @@ export class HuggingFaceProvider implements AIProvider {
     const suggestions: AISuggestion[] = [];
     
     decision.options.forEach((option, index) => {
-      if (option.pros.length === 0) {
+      if (option.score === 0) {
         suggestions.push({
           id: `fallback-pro-${index}`,
           type: 'question',
@@ -141,7 +141,7 @@ export class HuggingFaceProvider implements AIProvider {
         });
       }
       
-      if (option.cons.length === 0) {
+      if (option.score === 0) {
         suggestions.push({
           id: `fallback-con-${index}`,
           type: 'question',
