@@ -55,7 +55,8 @@ export default function HistoryList() {
                   <p className="text-sm">{decision.options.length} options</p>
                   {selectedOption && (
                     <p className="font-medium text-cyan-400">
-                      Choice: {selectedOption.title} (Score: {selectedOption.score})
+                      AI Choice: {selectedOption.title} 
+                      {selectedOption.score !== undefined && ` (${selectedOption.score}/10)`}
                     </p>
                   )}
                   </div>
@@ -75,12 +76,12 @@ export default function HistoryList() {
                     className={`p-3 rounded-md ${option.id === decision.selectedOptionId ? 'bg-slate-700 border-[2px] border-amber-700' : 'bg-slate-600'}`}
                   >
                     <p className="font-medium text-white">{option.title}</p>
-                    <div className="flex justify-between text-sm mt-1">
-                      <span className="text-green-400">+{option.pros.length}</span>
-                      <span className="text-red-400">-{option.cons.length}</span>
-                      <span className={`font-medium ${option.score > 0 ? 'text-green-400' : option.score < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                        Score: {option.score}
-                      </span>
+                    <div className="flex justify-end text-sm mt-1">
+                      {option.score !== undefined && (
+                        <span className={`font-medium ${option.score > 7 ? 'text-green-400' : option.score > 5 ? 'text-blue-400' : option.score > 3 ? 'text-yellow-400' : 'text-red-400'}`}>
+                          AI Score: {option.score}/10
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}

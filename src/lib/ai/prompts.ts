@@ -3,15 +3,7 @@ import { Decision } from '@/types';
 export class AIPrompts {
   static createAnalysisPrompt(decision: Decision): string {
     const optionsText = decision.options.map((option, index) => {
-      const prosText = option.pros.map(pro => `+ ${pro.text}`).join('\n');
-      const consText = option.cons.map(con => `- ${con.text}`).join('\n');
-      
-      return `Option ${index + 1}: ${option.title}
-Pros:
-${prosText || '(No pros listed)'}
-Cons:
-${consText || '(No cons listed)'}
-Current Score: ${option.score}`;
+      return `Option ${index + 1}: ${option.title}`;
     }).join('\n\n');
 
     const prioritiesText = decision.priorities && decision.priorities.length > 0 
@@ -51,7 +43,7 @@ PRIORITY SCORING INSTRUCTIONS:
       "weight": 0.3,
       "favorsOption": "Option name that this factor favors"
     }
-  ],${decision.priorities && decision.priorities.length > 0 ? `
+  ],
   "priorityScores": [
     {
       "optionId": "option-id",
@@ -65,7 +57,7 @@ PRIORITY SCORING INSTRUCTIONS:
       ],
       "totalScore": 85.5
     }
-  ],` : ''}
+  ],
   "timeHorizon": {
     "shortTerm": "Impact in the next 1-6 months",
     "mediumTerm": "Impact in the next 6-24 months", 
@@ -74,27 +66,33 @@ PRIORITY SCORING INSTRUCTIONS:
 }
 
 Focus on:
-1. ${decision.priorities && decision.priorities.length > 0 ? 'Score each option against user priorities using 0-10 scale' : 'Weighing pros and cons objectively'}
-2. ${decision.priorities && decision.priorities.length > 0 ? 'Calculate weighted scores (score × weight ÷ 100)' : 'Considering long-term implications'}
-3. ${decision.priorities && decision.priorities.length > 0 ? 'Base recommendation on highest total weighted score' : 'Identifying hidden risks or opportunities'}
-4. ${decision.priorities && decision.priorities.length > 0 ? 'Explain scoring rationale for each priority' : 'Suggesting improvements to existing options'}
-5. Providing actionable insights
+1. ${decision.priorities && decision.priorities.length > 0 ? 'Score each option against user priorities using 0-10 scale' : 'Evaluate each option based on the title and context, scoring 0-10'}
+2. ${decision.priorities && decision.priorities.length > 0 ? 'Calculate weighted scores (score × weight ÷ 100)' : 'Consider factors like feasibility, cost, benefits, risks from the option titles'}
+3. ${decision.priorities && decision.priorities.length > 0 ? 'Base recommendation on highest total weighted score' : 'Analyze option titles for quality indicators (best, premium, safe, fast, cheap vs risky, expensive, hard)'}
+4. ${decision.priorities && decision.priorities.length > 0 ? 'Explain scoring rationale for each priority' : 'Provide detailed reasoning for why each option received its score'}
+5. Providing actionable insights based on the analysis
 6. Being realistic about confidence levels (closer scores = lower confidence)
+7. Generate meaningful scores that reflect the relative quality and viability of each option
 
 ${decision.priorities && decision.priorities.length > 0 ? `
-EXAMPLE SCORING:
+EXAMPLE SCORING WITH USER PRIORITIES:
 Option A: Flexibility(8×40%=32) + Cost(6×25%=15) + Networking(4×20%=8) + Productivity(7×15%=10.5) = Total: 65.5
 Option B: Flexibility(5×40%=20) + Cost(9×25%=22.5) + Networking(8×20%=16) + Productivity(6×15%=9) = Total: 67.5
 → Recommend Option B (higher score)
 
-` : ''}Return only valid JSON.`;
+` : `
+EXAMPLE SCORING WITHOUT USER PRIORITIES:
+Use general quality factors: Quality, Feasibility, Cost-effectiveness, Risk level, Innovation
+Option A "Best premium service": Quality(9×25%=22.5) + Feasibility(7×25%=17.5) + Cost(5×25%=12.5) + Risk(8×25%=20) = Total: 72.5
+Option B "Cheap basic option": Quality(4×25%=10) + Feasibility(9×25%=22.5) + Cost(9×25%=22.5) + Risk(7×25%=17.5) = Total: 72.5
+→ Analyze titles for quality indicators and provide meaningful scores
+
+`}Return only valid JSON.`;
   }
 
   static createSuggestionsPrompt(decision: Decision): string {
     const optionsText = decision.options.map((option, index) => {
-      return `Option ${index + 1}: ${option.title}
-Pros: ${option.pros.map(p => p.text).join(', ')}
-Cons: ${option.cons.map(c => c.text).join(', ')}`;
+      return `Option ${index + 1}: ${option.title}`;
     }).join('\n');
 
     return `You are a decision-making assistant. Generate helpful suggestions for this decision.
@@ -137,15 +135,10 @@ Return only valid JSON array.`;
     return `Analyze this decision option and suggest improvements:
 
 OPTION: ${option.title}
-Current Pros: ${option.pros.join(', ')}
-Current Cons: ${option.cons.join(', ')}
 
 Suggest additional pros and cons in JSON format:
 {
-  "additionalPros": ["List of potential positive aspects not yet considered"],
-  "additionalCons": ["List of potential negative aspects not yet considered"],
-  "modifications": ["Suggestions to improve this option"],
-  "questions": ["Important questions to research about this option"]
+  "modifications": ["Suggestions to improve this option"]
 }
 
 Return only valid JSON.`;

@@ -11,9 +11,7 @@ export interface Con {
 export interface Option {
   id: string;
   title: string;
-  pros: Pro[];
-  cons: Con[];
-  score: number;
+  score?: number; // AI-calculated score
 }
 
 export interface Priority {

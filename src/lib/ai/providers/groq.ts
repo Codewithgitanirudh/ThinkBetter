@@ -99,25 +99,61 @@ export class GroqProvider implements AIProvider {
 
   private getFallbackAnalysis(decision: Decision): AIAnalysis {
     const options = decision.options;
-    const topOption = options.reduce((best, current) => 
-      current.score > best.score ? current : best
+    
+    // Generate meaningful scores based on option analysis
+    const scoredOptions = options.map(option => {
+      let score = 5; // baseline score
+      
+      // Analyze option title for keywords that suggest quality
+      const title = option.title.toLowerCase();
+      
+      // Positive indicators
+      if (title.includes('best') || title.includes('premium') || title.includes('top')) score += 2;
+      if (title.includes('safe') || title.includes('secure') || title.includes('reliable')) score += 1.5;
+      if (title.includes('fast') || title.includes('quick') || title.includes('efficient')) score += 1;
+      if (title.includes('free') || title.includes('affordable') || title.includes('cheap')) score += 1;
+      if (title.includes('new') || title.includes('innovative') || title.includes('modern')) score += 0.5;
+      
+      // Negative indicators
+      if (title.includes('risky') || title.includes('uncertain') || title.includes('maybe')) score -= 2;
+      if (title.includes('expensive') || title.includes('costly') || title.includes('hard')) score -= 1;
+      if (title.includes('old') || title.includes('outdated') || title.includes('basic')) score -= 0.5;
+      
+      // Add slight randomness for variety
+      score += (Math.random() * 2) - 1; // +/- 1 random variation
+      
+      // Ensure score is within bounds
+      score = Math.max(1, Math.min(10, score));
+      
+      return {
+        ...option,
+        score: Math.round(score * 10) / 10 // Round to 1 decimal place
+      };
+    });
+    
+    const topOption = scoredOptions.reduce((best, current) => 
+      (current.score || 0) > (best.score || 0) ? current : best
     );
 
     return {
       recommendation: topOption.title,
-      reasoning: `Based on the current scoring system, ${topOption.title} has the highest score (${topOption.score}).`,
-      riskFactors: ['AI analysis temporarily unavailable', 'Consider verifying the scoring manually'],
-      opportunities: ['Review the pros and cons for each option', 'Consider additional factors not yet listed'],
-      longTermBenefits: ['The selected option shows the most favorable immediate balance'],
-      potentialDrawbacks: ['Scoring may not capture all important factors'],
-      alternativeOptions: ['Consider combining elements from multiple options'],
-      confidence: 60,
-      uncertaintyAreas: ['AI analysis needs to be re-attempted'],
-      keyFactors: [],
+      reasoning: `After analyzing the option titles and keywords, ${topOption.title} scored ${topOption.score}/10, making it the recommended choice. The analysis considered factors like reliability, efficiency, cost, and innovation.`,
+      riskFactors: ['AI analysis temporarily unavailable', 'Title-based analysis may miss important details'],
+      opportunities: ['Research detailed pros and cons for each option', 'Seek expert opinions on top-scoring options'],
+      longTermBenefits: [`${topOption.title} shows the most favorable indicators based on analysis`],
+      potentialDrawbacks: ['Scores are estimates and should be validated', 'Title-based analysis has limitations'],
+      alternativeOptions: ['Enhance top option with features from others', 'Gather more detailed information for precise analysis'],
+      confidence: 65,
+      uncertaintyAreas: ['AI provider temporarily unavailable', 'Limited to keyword-based analysis'],
+      keyFactors: scoredOptions.map((option) => ({
+        factor: `${option.title} Quality Score`,
+        weight: (option.score || 0) / (scoredOptions.reduce((sum, o) => sum + (o.score || 0), 0)),
+        favorsOption: option.title
+      })),
       timeHorizon: {
-        shortTerm: 'Immediate implementation based on current analysis',
-        mediumTerm: 'Monitor outcomes and adjust as needed',
-        longTerm: 'Reassess decision effectiveness over time'
+        shortTerm: `Begin with ${topOption.title} (score: ${topOption.score}/10) for immediate needs`,
+        mediumTerm: 'Monitor performance and gather detailed feedback',
+        longTerm: 'Reassess based on real-world performance data'
       }
     };
   }

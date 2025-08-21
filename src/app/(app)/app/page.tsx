@@ -1,6 +1,6 @@
 import DecisionForm from '@/components/DecisionForm';
 import AIAssistant from '@/components/AIAssistant';
-import PriorityDemo from '@/components/PriorityDemo';
+// import PriorityDemo from '@/components/PriorityDemo';
 import { Sparkles, Brain, History } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,8 +35,8 @@ export default function AppHome() {
           </div>
         </div>
 
-        {/* Priority Analysis Demo */}
-        <PriorityDemo />
+        {/* Priority Analysis Demo
+        <PriorityDemo /> */}
 
         {/* Decision Maker */}
           <DecisionForm />

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useDecision } from '@/context/DecisionContext';
 import OptionCard from './OptionCard';
 import { motion, AnimatePresence } from 'framer-motion';
-import ResultDisplay from './ResultDisplay';
 import { Plus, Sparkles, Save, RotateCcw } from 'lucide-react';
 
 export default function DecisionForm() {
@@ -12,34 +11,18 @@ export default function DecisionForm() {
     currentDecision, 
     setTitle, 
     addOption, 
-    helpMeDecide, 
     saveDecision, 
     resetForm,
     loading 
   } = useDecision();
   
   const [optionTitle, setOptionTitle] = useState('');
-  const [saveMessage, setSaveMessage] = useState('');
-  const [saveError, setSaveError] = useState('');
-
+  console.log(currentDecision, "currentDecision");
   const handleAddOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (optionTitle.trim() && currentDecision.options.length < 5) {
       addOption(optionTitle);
       setOptionTitle('');
-    }
-  };
-
-  const handleSaveDecision = async () => {
-    try {
-      await saveDecision();
-      setSaveMessage('Decision saved successfully!');
-      setSaveError('');
-      setTimeout(() => setSaveMessage(''), 3000);
-    } catch (error) {
-      setSaveError('Error saving decision. Please try again.');
-      setSaveMessage('');
-      setTimeout(() => setSaveError(''), 3000);
     }
   };
 
@@ -123,27 +106,22 @@ export default function DecisionForm() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          {/* Help Me Decide Button */}
-          <div className="text-center">
-            <button
-              onClick={helpMeDecide}
-              className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 text-lg flex items-center space-x-3 mx-auto"
-            >
-              <Sparkles size={24} />
-              <span>Help Me Decide</span>
-            </button>
+          {/* AI Prompt */}
+          <div className="text-center p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+            <Sparkles size={32} className="mx-auto mb-3 text-purple-600" />
+            <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-2">
+              Ready for AI Analysis?
+            </h3>
+            <p className="text-purple-600 dark:text-purple-400 text-sm">
+              Use the AI Assistant (bottom right) to get intelligent recommendations for your decision
+            </p>
           </div>
-
-          {/* Result Display */}
-          {currentDecision.selectedOptionId && (
-            <ResultDisplay />
-          )}
 
           {/* Save/Reset Actions */}
           {currentDecision.title && (
             <div className="flex justify-center space-x-4">
               <button
-                onClick={handleSaveDecision}
+                onClick={() => saveDecision() }
                 disabled={loading}
                 className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
               >
@@ -162,30 +140,6 @@ export default function DecisionForm() {
         </motion.div>
       )}
 
-      {/* Messages */}
-      <AnimatePresence>
-        {saveMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="p-4 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-lg text-center"
-          >
-            {saveMessage}
-          </motion.div>
-        )}
-
-        {saveError && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="p-4 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg text-center"
-          >
-            {saveError}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
