@@ -1,6 +1,4 @@
 import Sidebar from '@/components/Sidebar';
-import AuthButtons from '@/components/AuthButtons';
-import AIAssistant from '@/components/AIAssistant';
 export const dynamic = 'force-dynamic';
 
 export default function AppLayout({
@@ -17,7 +15,6 @@ export default function AppLayout({
       <div className="fixed top-6 right-24 z-50">
         {/* <AuthButtons /> */}
       </div>
-      <AIAssistant />
     </div>
   );
 }

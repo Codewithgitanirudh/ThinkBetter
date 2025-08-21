@@ -1,6 +1,5 @@
 import DecisionForm from '@/components/DecisionForm';
 import AIAssistant from '@/components/AIAssistant';
-// import PriorityDemo from '@/components/PriorityDemo';
 import { Sparkles, Brain, History } from 'lucide-react';
 import Link from 'next/link';
 
