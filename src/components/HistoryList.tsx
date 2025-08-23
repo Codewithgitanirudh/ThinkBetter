@@ -4,9 +4,11 @@ import { useDecision } from '@/context/DecisionContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function HistoryList() {
   const { decisions, loading, removeDecision, isopen, setIsopen } = useDecision();
+  const [decisionId, setDecisionId] = useState<string>('');
 
   if (loading) {
     return (
@@ -31,9 +33,6 @@ export default function HistoryList() {
     <div className="max-w-4xl mx-auto p-4 relative">
       <div className="space-y-8">
         {decisions.map((decision, index) => {
-          const selectedOption = decision.options.find(
-            option => option.id === decision.selectedOptionId
-          );
 
           return (
             <motion.div
@@ -53,20 +52,14 @@ export default function HistoryList() {
                 <div className="text-right flex gap-4">
                   <div className="flex flex-col gap-2">
                   <p className="text-sm">{decision.options.length} options</p>
-                  {selectedOption && (
-                    <p className="font-medium text-cyan-400">
-                      AI Choice: {selectedOption.title} 
-                      {selectedOption.score !== undefined && ` (${selectedOption.score}/10)`}
-                    </p>
-                  )}
                   </div>
                   <button className="p-3 text-white cursor-pointer bg-red-500 hover:bg-red-600 rounded-md transition-colors" onClick={() => {
+                    setDecisionId(decision.id)
                     setIsopen(true)
                   }}>
                     <Trash2 size={20} />
                   </button>
                 </div>
-                <DeleteDecisionModal isopen={isopen} setIsopen={setIsopen} removeDecision={removeDecision} decisionId={decision.id} />
               </div>
 
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -89,6 +82,7 @@ export default function HistoryList() {
             </motion.div>
           );
         })}
+        <DeleteDecisionModal isopen={isopen} setIsopen={setIsopen} removeDecision={removeDecision} decisionId={decisionId} />
       </div>
     </div>
     
@@ -96,6 +90,8 @@ export default function HistoryList() {
 }
 
 const DeleteDecisionModal = ({isopen, setIsopen, removeDecision, decisionId}: {isopen: boolean, setIsopen: (isopen: boolean) => void, removeDecision: (id: string) => void, decisionId: string}) => {
+  console.log(decisionId, "sdf");
+  
   return (
     <>
     {isopen && ( 
