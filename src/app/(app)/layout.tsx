@@ -15,9 +15,6 @@ export default function AppLayout({
       <main className="flex-1 ml-0 h-screen">
         {children}
       </main>
-      <div className="fixed top-6 right-24 z-50">
-        <AuthButtons />
-      </div>
     </div>
   );
 }

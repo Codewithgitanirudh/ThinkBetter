@@ -33,11 +33,11 @@ export default function AuthButtons() {
   }
 
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm text-text">{user.displayName || user.email}</span>
+    <div className="flex items-center justify-between space-x-2">
+      <span className="text-sm text-white">{user.displayName || user.email}</span>
       <motion.button
         onClick={signOutUser}
-        className="px-3 py-1.5 rounded-md bg-darkSurface hover:bg-darkBg transition-colors text-sm text-text"
+        className="px-3 py-1.5 rounded-md bg-red-400 hover:bg-red-500 transition-colors text-sm text-white"
         whileTap={{ scale: 0.98 }}
       >
         Sign out

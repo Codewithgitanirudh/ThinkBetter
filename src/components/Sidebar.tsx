@@ -17,6 +17,7 @@ import {
   HelpCircle,
   Sparkles,
 } from "lucide-react";
+import AuthButtons from "./AuthButtons";
 
 export default function Sidebar() {
   const { isDrawerOpen, setIsDrawerOpen } = useDecision();
@@ -96,7 +97,7 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm bg-opacity-50 z-40 md:hidden"
             onClick={() => setIsDrawerOpen(false)}
           />
         )}
@@ -195,7 +196,10 @@ export default function Sidebar() {
           )}
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-700 space-y-2">
+          <div className="p-4 border-t border-slate-700 space-y-2 flex flex-col justify-between ">
+            <div className="p-2">
+              <AuthButtons />
+            </div>
             <Link
               href="/settings"
               className="flex items-center space-x-3 p-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
