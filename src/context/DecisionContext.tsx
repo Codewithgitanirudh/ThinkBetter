@@ -22,6 +22,8 @@ interface DecisionContextType {
   setIsopen: (isopen: boolean) => void;
   analysis: AIAnalysis | null;
   setAnalysis: (analysis: AIAnalysis | null) => void;
+  isDrawerOpen: boolean;
+  setIsDrawerOpen: (isMobile: boolean) => void;
 }
 
 const initialDecision: Decision = {
@@ -39,6 +41,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [isopen, setIsopen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { user } = useAuth();
 
   // Fetch decisions from Firestore for the authenticated user
@@ -195,7 +198,9 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
         isopen,
         setIsopen,
         analysis,
-        setAnalysis
+        setAnalysis,
+        isDrawerOpen,
+        setIsDrawerOpen
       }}
     >
       {children}

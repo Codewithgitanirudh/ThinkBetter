@@ -51,7 +51,7 @@ export default function HistoryList() {
                   </p>
                 </div>
                 <div className="text-right flex gap-4">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex-col gap-2 hidden md:flex">
                   <p className="text-sm">{decision.options.length} options</p>
 
                   <p className='text-sm text-amber-500'>AI choice: {maxScoreChoice.title}</p>

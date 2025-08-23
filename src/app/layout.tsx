@@ -5,7 +5,6 @@ import { Inter } from 'next/font/google';
 import { DecisionProvider } from '@/context/DecisionContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import ThemeToggle from '@/components/ThemeToggle';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,7 +23,6 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <DecisionProvider>
-          <ThemeToggle />
             {children}
           </DecisionProvider>
         </AuthProvider>
