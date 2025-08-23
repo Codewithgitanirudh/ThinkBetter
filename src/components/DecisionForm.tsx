@@ -1,28 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useDecision } from '@/context/DecisionContext';
-import OptionCard from './OptionCard';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Sparkles, Save, RotateCcw } from 'lucide-react';
+import { useState } from "react";
+import { useDecision } from "@/context/DecisionContext";
+import OptionCard from "./OptionCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Sparkles, Save, RotateCcw } from "lucide-react";
+import { handleAnalyze } from "./AiHandler";
 
 export default function DecisionForm() {
-  const { 
-    currentDecision, 
-    setTitle, 
-    addOption, 
-    saveDecision, 
+  const {
+    currentDecision,
+    setTitle,
+    addOption,
+    saveDecision,
     resetForm,
-    loading 
+    loading,
+    updateWithAIScores,
+    setIsopen,
+    setAnalysis,
   } = useDecision();
-  
-  const [optionTitle, setOptionTitle] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [optionTitle, setOptionTitle] = useState("");
   console.log(currentDecision, "currentDecision");
   const handleAddOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (optionTitle.trim() && currentDecision.options.length < 5) {
       addOption(optionTitle);
-      setOptionTitle('');
+      setOptionTitle("");
     }
   };
 
@@ -35,7 +39,10 @@ export default function DecisionForm() {
         className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
       >
         <div className="mb-6">
-          <label htmlFor="decision-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            htmlFor="decision-title"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             What are you deciding?
           </label>
           <input
@@ -49,7 +56,10 @@ export default function DecisionForm() {
         </div>
 
         <form onSubmit={handleAddOption} className="space-y-4">
-          <label htmlFor="option-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="option-title"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Add your options ({currentDecision.options.length}/5)
           </label>
           <div className="flex space-x-3">
@@ -65,14 +75,18 @@ export default function DecisionForm() {
             <button
               type="submit"
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
-              disabled={!optionTitle.trim() || currentDecision.options.length >= 5}
+              disabled={
+                !optionTitle.trim() || currentDecision.options.length >= 5
+              }
             >
               <Plus size={20} />
               <span>Add</span>
             </button>
           </div>
           {currentDecision.options.length >= 5 && (
-            <p className="text-sm text-amber-600 dark:text-amber-400">Maximum 5 options allowed</p>
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              Maximum 5 options allowed
+            </p>
           )}
         </form>
       </motion.div>
@@ -84,7 +98,9 @@ export default function DecisionForm() {
           animate={{ opacity: 1 }}
           className="space-y-6"
         >
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Options</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Your Options
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AnimatePresence>
               {currentDecision.options.map((option) => (
@@ -112,21 +128,46 @@ export default function DecisionForm() {
             <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-2">
               Ready for AI Analysis?
             </h3>
-            <p className="text-purple-600 dark:text-purple-400 text-sm">
-              Use the AI Assistant (bottom right) to get intelligent recommendations for your decision
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              {/* Analyze Button */}
+              <button
+                onClick={() => {
+                  handleAnalyze(
+                    currentDecision,
+                    updateWithAIScores,
+                    setIsAnalyzing,
+                    setAnalysis
+                  );
+                  setIsopen(true);
+                }}
+                disabled={isAnalyzing}
+                className="w-full p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-darkBg rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAnalyzing ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-darkBg"></div>
+                    <span>Analyzing...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2">
+                    <Sparkles size={20} />
+                    <span>Analyze</span>
+                  </div>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Save/Reset Actions */}
           {currentDecision.title && (
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => saveDecision() }
+                onClick={() => saveDecision()}
                 disabled={loading}
                 className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
               >
                 <Save size={20} />
-                <span>{loading ? 'Saving...' : 'Save Decision'}</span>
+                <span>{loading ? "Saving..." : "Save Decision"}</span>
               </button>
               <button
                 onClick={resetForm}
@@ -139,7 +180,6 @@ export default function DecisionForm() {
           )}
         </motion.div>
       )}
-
     </div>
   );
 }
