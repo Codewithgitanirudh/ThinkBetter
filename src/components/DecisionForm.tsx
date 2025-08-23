@@ -36,12 +36,12 @@ export default function DecisionForm() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
+        className="bg-gray-800 p-6 rounded-xl shadow-lg"
       >
         <div className="mb-6">
           <label
             htmlFor="decision-title"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-gray-300 mb-2"
           >
             What are you deciding?
           </label>
@@ -51,14 +51,14 @@ export default function DecisionForm() {
             value={currentDecision.title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Which job offer should I accept?"
-            className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-lg"
+            className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-700 text-white text-lg"
           />
         </div>
 
         <form onSubmit={handleAddOption} className="space-y-4">
           <label
             htmlFor="option-title"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="block text-sm font-medium text-gray-300"
           >
             Add your options ({currentDecision.options.length}/5)
           </label>
@@ -69,7 +69,7 @@ export default function DecisionForm() {
               value={optionTitle}
               onChange={(e) => setOptionTitle(e.target.value)}
               placeholder="Enter an option..."
-              className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+              className="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-700 text-white"
               disabled={currentDecision.options.length >= 5}
             />
             <button
@@ -84,7 +84,7 @@ export default function DecisionForm() {
             </button>
           </div>
           {currentDecision.options.length >= 5 && (
-            <p className="text-sm text-amber-600 dark:text-amber-400">
+            <p className="text-sm text-amber-400">
               Maximum 5 options allowed
             </p>
           )}
@@ -98,7 +98,7 @@ export default function DecisionForm() {
           animate={{ opacity: 1 }}
           className="space-y-6"
         >
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-white">
             Your Options
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -123,9 +123,9 @@ export default function DecisionForm() {
           className="space-y-6"
         >
           {/* AI Prompt */}
-          <div className="text-center p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+          <div className="text-center p-6 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-xl border border-purple-200">
             <Sparkles size={32} className="mx-auto mb-3 text-purple-600" />
-            <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-2">
+            <h3 className="text-lg font-semibold text-purple-300 mb-2">
               Ready for AI Analysis?
             </h3>
             <div className="flex items-center justify-between gap-4">

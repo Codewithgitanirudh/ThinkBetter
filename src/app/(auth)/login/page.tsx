@@ -54,24 +54,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
             Sign in to your account
           </h2>
         </div>
         
         {form.error && (
-          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-md">
+          <div className="bg-red-900/20 text-red-300 p-4 rounded-md">
             {form.error}
           </div>
         )}
         
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 space-y-6">
+        <div className="bg-gray-800 shadow rounded-lg p-8 space-y-6">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-400">
                 Email address
               </label>
               <input
@@ -82,12 +82,12 @@ export default function LoginPage() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
               />
             </div>
 
             <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-400">
                 Password
               </label>
               <input
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 required
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
               />
               <button
                 type="button"
@@ -122,10 +122,10 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+              <span className="px-2 bg-gray-800 text-gray-400">
                 Or continue with
               </span>
             </div>
@@ -137,8 +137,8 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
-          <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+          <span className="text-gray-400">Don't have an account? </span>
+          <Link href="/signup" className="font-medium text-blue-400 hover:text-blue-300">
             Sign up
           </Link>
         </div>

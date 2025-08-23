@@ -89,24 +89,24 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
             Create a new account
           </h2>
         </div>
         
         {error && (
-          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-md">
+          <div className="bg-red-900/20 text-red-300 p-4 rounded-md">
             {error}
           </div>
         )}
         
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 space-y-6">
+        <div className="bg-gray-800 shadow rounded-lg p-8 space-y-6">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-400">
                 Email address
               </label>
               <input
@@ -117,12 +117,12 @@ export default function SignupPage() {
                 required
                 value={formState.email}
                 onChange={(e) => dispatch({ type: 'SET_EMAIL', payload: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
               />
             </div>
 
             <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-400">
                 Password
               </label>
               <input
@@ -133,7 +133,7 @@ export default function SignupPage() {
                 required
                 value={formState.password}
                 onChange={(e) => dispatch({ type: 'SET_PASSWORD', payload: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
               />
               <button
                 type="button"
@@ -145,7 +145,7 @@ export default function SignupPage() {
             </div>
 
             <div className="relative">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-400">
                 Confirm Password
               </label>
               <input
@@ -156,7 +156,7 @@ export default function SignupPage() {
                 required
                 value={formState.confirmPassword}
                 onChange={(e) => dispatch({ type: 'SET_CONFIRM_PASSWORD', payload: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
               />
               <button
                 type="button"
@@ -171,7 +171,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {loading ? 'Creating account...' : 'Sign up'}
               </button>
@@ -180,10 +180,10 @@ export default function SignupPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              <div className="w-full border-t border-gray-600" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+              <span className="px-2 bg-gray-800 text-gray-400">
                 Or sign up with
               </span>
             </div>
@@ -195,8 +195,8 @@ export default function SignupPage() {
         </div>
 
         <div className="text-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Already have an account? </span>
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+          <span className="text-gray-400">Already have an account? </span>
+          <Link href="/login" className="font-medium text-white hover:text-blue-300">
             Sign in
           </Link>
         </div>

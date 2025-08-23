@@ -36,7 +36,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleDarkMode}
-      className="fixed top-6 right-4 p-3 rounded-full bg-gray-200 dark:bg-gray-800 shadow-lg"
+      className="fixed top-6 right-4 p-3 rounded-full bg-gray-800 shadow-lg"
       aria-label="Toggle dark mode"
     >
       {darkMode ? (

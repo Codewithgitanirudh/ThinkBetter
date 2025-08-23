@@ -7,10 +7,10 @@ export default function MobileHeader() {
   const { isDrawerOpen, setIsDrawerOpen } = useDecision();
 
   return (
-    <div className="sticky top-0 p-2 flex items-center justify-between h-full max-h-[80px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow md:hidden w-full ">
+    <div className="sticky top-0 p-2 flex items-center justify-between h-full max-h-[80px] bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow md:hidden w-full ">
       <button
         onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-        className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow md:hidden"
+        className="p-2 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow md:hidden"
       >
         <Menu size={24} />
       </button>

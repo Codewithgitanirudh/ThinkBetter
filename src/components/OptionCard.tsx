@@ -24,11 +24,11 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
   };
 
   const getScoreColor = (score?: number) => {
-    if (!score) return 'text-gray-600 bg-gray-100 dark:bg-gray-700';
-    if (score > 7) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
-    if (score > 5) return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
-    if (score > 3) return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-    return 'text-red-600 bg-red-100 dark:bg-red-900/20';
+    if (!score) return 'text-gray-600 bg-gray-700';
+    if (score > 7) return 'text-green-600 bg-green-900/20';
+    if (score > 5) return 'text-blue-600 bg-blue-900/20';
+    if (score > 3) return 'text-yellow-600 bg-yellow-900/20';
+    return 'text-red-600 bg-red-900/20';
   };
 
   return (
@@ -38,8 +38,8 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
       exit={{ opacity: 0, y: -20 }}
       className={`relative p-6 rounded-xl shadow-lg transition-all duration-300 ${
         isSelected 
-          ? 'ring-2 ring-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20' 
-          : 'bg-white dark:bg-gray-800 hover:shadow-xl'
+          ? 'ring-2 ring-purple-500 bg-gradient-to-br from-purple-900/20 to-blue-900/20' 
+          : 'bg-gray-800 hover:shadow-xl'
       }`}
     >
       {/* Selected Badge */}
@@ -61,7 +61,7 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500"
+              className="flex-1 p-2 border border-gray-300 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-purple-500"
               autoFocus
             />
             <button
@@ -73,17 +73,17 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
           </div>
         ) : (
           <>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{option.title}</h3>
+            <h3 className="text-xl font-bold text-white">{option.title}</h3>
             <div className="flex space-x-2">
               <button
                 onClick={() => setIsEditing(true)}
-                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               >
                 <Edit2 size={16} />
               </button>
               <button
                 onClick={() => removeOption(option.id)}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <Trash2 size={16} />
               </button>
@@ -104,7 +104,7 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
 
       {/* Placeholder for AI analysis */}
       {!option.score && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-8 text-gray-500">
           <Sparkles size={32} className="mx-auto mb-2 opacity-50" />
           <p className="text-sm">Use AI Assistant to analyze this option</p>
         </div>
