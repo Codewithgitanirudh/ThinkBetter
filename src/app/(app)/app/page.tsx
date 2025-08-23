@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function AppHome() {
   return (
-    <div className="min-h-screen p-6 md:p-8">
+    <div className="min-h-screen p-6 md:p-8 ml-0">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Hero */}
         <div className="bg-primary-light border border-primary-light rounded-2xl p-8 md:p-10 shadow-sm">

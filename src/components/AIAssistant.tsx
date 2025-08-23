@@ -14,283 +14,8 @@ import {
 import { AIAnalysis } from "@/types";
 
 export default function AIAssistant() {
-  const { currentDecision, updateWithAIScores } = useDecision();
-  const [isOpen, setIsOpen] = useState(false);
-  const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  // Real AI analysis function using API
-  const generateAIAnalysis = async (): Promise<AIAnalysis> => {
-    setIsAnalyzing(true);
-
-    try {
-      const response = await fetch("/api/ai/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ decision: currentDecision }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(data, "data");
-      setIsAnalyzing(false);
-      return data.analysis;
-    } catch (error) {
-      console.error("AI Analysis error:", error);
-      setIsAnalyzing(false);
-
-      // Fallback analysis if API fails
-      return getFallbackAnalysis();
-    }
-  };
-
-  const getFallbackAnalysis = (): AIAnalysis => {
-    const options = currentDecision.options;
-    const priorities = currentDecision.priorities || [];
-
-    // Generate meaningful scores based on option analysis
-    const scoredOptions = options.map((option) => {
-      let score = 5; // baseline score
-
-      // Analyze option title for keywords that suggest quality
-      const title = option.title.toLowerCase();
-
-      // Positive indicators
-      if (
-        title.includes("best") ||
-        title.includes("premium") ||
-        title.includes("top")
-      )
-        score += 2;
-      if (
-        title.includes("safe") ||
-        title.includes("secure") ||
-        title.includes("reliable")
-      )
-        score += 1.5;
-      if (
-        title.includes("fast") ||
-        title.includes("quick") ||
-        title.includes("efficient")
-      )
-        score += 1;
-      if (
-        title.includes("free") ||
-        title.includes("affordable") ||
-        title.includes("cheap")
-      )
-        score += 1;
-      if (
-        title.includes("new") ||
-        title.includes("innovative") ||
-        title.includes("modern")
-      )
-        score += 0.5;
-
-      // Negative indicators
-      if (
-        title.includes("risky") ||
-        title.includes("uncertain") ||
-        title.includes("maybe")
-      )
-        score -= 2;
-      if (
-        title.includes("expensive") ||
-        title.includes("costly") ||
-        title.includes("hard")
-      )
-        score -= 1;
-      if (
-        title.includes("old") ||
-        title.includes("outdated") ||
-        title.includes("basic")
-      )
-        score -= 0.5;
-
-      // Add slight randomness for variety
-      score += Math.random() * 2 - 1; // +/- 1 random variation
-
-      // Ensure score is within bounds
-      score = Math.max(1, Math.min(10, score));
-
-      return {
-        ...option,
-        score: Math.round(score * 10) / 10, // Round to 1 decimal place
-      };
-    });
-
-    let topOption = scoredOptions.reduce((best, current) =>
-      (current.score || 0) > (best.score || 0) ? current : best
-    );
-
-    // If priorities are available, calculate weighted scores
-    let priorityScores: AIAnalysis["priorityScores"] = undefined;
-
-    if (priorities.length > 0) {
-      priorityScores = scoredOptions.map((option) => {
-        const scores = priorities.map((priority) => {
-          // Simple heuristic scoring based on option title relevance to priority
-          let score = 5; // baseline score
-
-          // Check if option title relates to this priority
-          const titleRelevance = option.title
-            .toLowerCase()
-            .includes(priority.name.toLowerCase())
-            ? 2
-            : 0;
-          score += titleRelevance;
-
-          // Add some randomness for demo purposes
-          score += Math.random() * 2 - 1; // +/- 1 random variation
-          score = Math.max(0, Math.min(10, score)); // Keep within 0-10
-
-          return {
-            priority: priority.name,
-            score: Math.round(score * 10) / 10,
-            weightedScore:
-              Math.round(((score * priority.weight) / 100) * 10) / 10,
-          };
-        });
-
-        const totalScore = scores.reduce((sum, s) => sum + s.weightedScore, 0);
-
-        return {
-          optionId: option.id,
-          optionName: option.title,
-          scores,
-          totalScore: Math.round(totalScore * 10) / 10,
-        };
-      });
-
-      // Update recommendation based on priority scores
-      const highestScoringOption = priorityScores.reduce((best, current) =>
-        current.totalScore > best.totalScore ? current : best
-      );
-
-      topOption =
-        scoredOptions.find((o) => o.id === highestScoringOption.optionId) ||
-        topOption;
-    }
-
-    const avgScore =
-      scoredOptions.reduce((sum, opt) => sum + (opt.score || 0), 0) /
-      scoredOptions.length;
-    const scoreSpread =
-      Math.max(...scoredOptions.map((o) => o.score || 0)) -
-      Math.min(...scoredOptions.map((o) => o.score || 0));
-
-    return {
-      recommendation: topOption ? topOption.title : "Unable to determine",
-      reasoning: priorityScores
-        ? `Based on priority-weighted analysis, ${topOption.title} scores highest with ${topOption.score}/10. The AI analyzed option titles and factors to determine scores.`
-        : `After analyzing the option titles and keywords, ${topOption.title} scored ${topOption.score}/10, making it the recommended choice. The analysis considered factors like reliability, efficiency, cost, and innovation.`,
-      riskFactors: [
-        scoreSpread < 2
-          ? `Close scores (spread: ${scoreSpread.toFixed(
-              1
-            )}) suggest options are similar - consider additional factors`
-          : "",
-        "Analysis based on option titles - detailed evaluation recommended",
-        avgScore < 5
-          ? "All options show moderate scores - consider improving options"
-          : "",
-      ].filter(Boolean),
-      opportunities: [
-        "Research detailed pros and cons for each option",
-        "Seek expert opinions on top-scoring options",
-        "Consider combining elements from multiple options",
-        topOption.score && topOption.score > 7
-          ? "High-scoring option shows strong potential"
-          : "",
-      ].filter(Boolean),
-      longTermBenefits: [
-        `${topOption.title} shows the most favorable indicators based on analysis`,
-        "Systematic scoring approach provides objective comparison",
-        scoreSpread > 3
-          ? "Clear differentiation between options enables confident choice"
-          : "",
-      ].filter(Boolean),
-      potentialDrawbacks: [
-        "Title-based analysis may miss important details",
-        "Scores are estimates and should be validated",
-        avgScore < 6
-          ? "Moderate average scores suggest all options need improvement"
-          : "",
-      ].filter(Boolean),
-      alternativeOptions: [
-        "Enhance top option with features from others",
-        scoreSpread < 1.5
-          ? "Since scores are close, consider hybrid approach"
-          : "",
-        "Gather more detailed information for precise analysis",
-      ].filter(Boolean),
-      confidence: Math.min(
-        85,
-        Math.max(40, 50 + scoreSpread * 10 + avgScore * 5)
-      ),
-      uncertaintyAreas: [
-        "Limited to title-based keyword analysis",
-        "Detailed option specifications not available",
-        scoreSpread < 2 ? "Options are very similar in scoring" : "",
-      ].filter(Boolean),
-      keyFactors: scoredOptions.map((option) => ({
-        factor: `${option.title} Quality Score`,
-        weight:
-          (option.score || 0) /
-          scoredOptions.reduce((sum, o) => sum + (o.score || 0), 0),
-        favorsOption: option.title,
-      })),
-      priorityScores,
-      timeHorizon: {
-        shortTerm: `Begin with ${topOption.title} (score: ${topOption.score}/10) for immediate needs`,
-        mediumTerm: "Monitor performance and gather detailed feedback",
-        longTerm: "Reassess based on real-world performance data",
-      },
-    };
-  };
-
-  const handleAnalyze = async () => {
-    if (currentDecision.options.length < 2) return;
-
-    const result = await generateAIAnalysis();
-    setAnalysis(result);
-
-    // Extract scores and update the decision
-    if (result.priorityScores && result.priorityScores.length > 0) {
-      // Use priority-based scores
-      const scores = result.priorityScores.map((ps) => ({
-        optionId: ps.optionId,
-        score: Math.min(10, Math.max(0, Math.round(ps.totalScore))), // Ensure 0-10 range
-      }));
-
-      const topOption = result.priorityScores.reduce((best, current) =>
-        current.totalScore > best.totalScore ? current : best
-      );
-
-      updateWithAIScores(scores, topOption.optionId);
-    } else {
-      // Fallback: generate simple scores based on recommendation
-      const scores = currentDecision.options.map((option) => ({
-        optionId: option.id,
-        score:
-          option.title === result.recommendation
-            ? 8
-            : Math.floor(Math.random() * 6) + 3,
-      }));
-
-      const recommendedOption = currentDecision.options.find(
-        (o) => o.title === result.recommendation
-      );
-      if (recommendedOption) {
-        updateWithAIScores(scores, recommendedOption.id);
-      }
-    }
-  };
+  const { currentDecision, isopen, setIsopen, analysis } = useDecision();
+  console.log(analysis, "analysis");
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return "text-primary";
@@ -301,7 +26,7 @@ export default function AIAssistant() {
   return (
     <>
       <motion.button
-        onClick={() => setIsOpen(true)}
+        onClick={() => setIsopen(true)}
         className="fixed bottom-6 right-6 p-4 bg-primary text-darkBg rounded-full shadow-2xl hover:shadow-primary/25 transition-all duration-300 z-50"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
@@ -320,7 +45,7 @@ export default function AIAssistant() {
       </motion.button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isopen && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -329,7 +54,7 @@ export default function AIAssistant() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200 "
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsopen(false)}
               style={{ zIndex: 9998 }}
             />
 
@@ -359,47 +84,21 @@ export default function AIAssistant() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4">
-                   {/* Analyze Button */}
-                   <button
-                      onClick={handleAnalyze}
-                      disabled={isAnalyzing}
-                      className="w-full p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-darkBg rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isAnalyzing ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-darkBg"></div>
-                          <span>Analyzing...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center space-x-2">
-                          <Sparkles size={20} />
-                          <span>Analyze</span>
-                        </div>
-                      )}
-                    </button>
-
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsopen(false)}
                     className="p-2 hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-white"
                   >
                     <X size={20} />
                   </button>
-                  </div>
                 </div>
 
                 {/* Content */}
-                {currentDecision.options.length < 2 ? (
+                {analysis === null ? (
                   <div className="text-center py-8">
-                    <Brain size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">
-                      Need More Options
-                    </h3>
-                    <p className="text-gray-400">
-                      Add at least 2 options to get AI analysis and
-                      recommendations.
-                    </p>
-                  </div>
+                  <div className="h-12 w-12 mx-auto bg-gray-700 rounded-full mb-4 animate-pulse" />
+                  <div className="h-6 w-3/5 mx-auto bg-gray-700 rounded mb-2 animate-pulse" />
+                  <div className="h-4 w-2/5 mx-auto bg-gray-700 rounded animate-pulse" />
+                </div>
                 ) : (
                   <div className="space-y-6 overflow-y-auto max-h-[62vh] md:max-h-[67vh] pr-3 md:pr-5 mt-10">
                     {/* Analysis Results */}

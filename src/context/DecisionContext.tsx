@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { Decision, Option } from '@/types';
+import { Decision, Option, AIAnalysis } from '@/types';
 
 interface DecisionContextType {
   currentDecision: Decision;
@@ -20,6 +20,10 @@ interface DecisionContextType {
   removeDecision: (id: string) => Promise<void>;
   isopen: boolean;
   setIsopen: (isopen: boolean) => void;
+  analysis: AIAnalysis | null;
+  setAnalysis: (analysis: AIAnalysis | null) => void;
+  isDrawerOpen: boolean;
+  setIsDrawerOpen: (isMobile: boolean) => void;
 }
 
 const initialDecision: Decision = {
@@ -34,8 +38,10 @@ const DecisionContext = createContext<DecisionContextType | undefined>(undefined
 export function DecisionProvider({ children }: { children: ReactNode }) {
   const [currentDecision, setCurrentDecision] = useState<Decision>(initialDecision);
   const [decisions, setDecisions] = useState<Decision[]>([]);
+  const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [isopen, setIsopen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { user } = useAuth();
 
   // Fetch decisions from Firestore for the authenticated user
@@ -190,7 +196,11 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
         loading,
         removeDecision,
         isopen,
-        setIsopen
+        setIsopen,
+        analysis,
+        setAnalysis,
+        isDrawerOpen,
+        setIsDrawerOpen
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import Sidebar from '@/components/Sidebar';
 import AuthButtons from '@/components/AuthButtons';
+import MobileHeader from '@/components/MobileHeader';
 export const dynamic = 'force-dynamic';
 
 export default function AppLayout({
@@ -8,14 +9,15 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-bgColor text-text">
+    <div className="flex h-screen bg-bgColor text-text flex-col md:flex-row">
+      <MobileHeader />
       <Sidebar />
-      <main className="flex-1 overflow-y-auto md:ml-0">
+      <main className="flex-1 ml-0 h-screen">
         {children}
       </main>
-      <div className="fixed top-6 right-24 z-50">
+      {/* <div className="fixed top-6 right-24 z-50">
         <AuthButtons />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -29,14 +29,14 @@ html {
 }
 
 :root {
-  --bg-color: white;
-  --text-color: black;
-}
-
-.dark {
   --bg-color: #0f172a;
   --text-color: white;
 }
+
+/* .dark {
+  --bg-color: #0f172a;
+  --text-color: white;
+} */
 
 body {
   background-color: var(--bg-color);
