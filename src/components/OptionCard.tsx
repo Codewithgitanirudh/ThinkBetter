@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useDecision } from '@/context/DecisionContext';
 import { Option } from '@/types';
 import { motion } from 'framer-motion';
-import { Edit2, Trash2, Plus, X, Crown } from 'lucide-react';
+import { Edit2, Trash2, Crown, Sparkles } from 'lucide-react';
 
 interface OptionCardProps {
   option: Option;
@@ -12,27 +12,9 @@ interface OptionCardProps {
 }
 
 export default function OptionCard({ option, isSelected }: OptionCardProps) {
-  const { updateOption, removeOption, addPro, removePro, addCon, removeCon } = useDecision();
-  const [proText, setProText] = useState('');
-  const [conText, setConText] = useState('');
+  const { updateOption, removeOption } = useDecision();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(option.title);
-
-  const handleAddPro = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (proText.trim()) {
-      addPro(option.id, proText);
-      setProText('');
-    }
-  };
-
-  const handleAddCon = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (conText.trim()) {
-      addCon(option.id, conText);
-      setConText('');
-    }
-  };
 
   const handleUpdateTitle = () => {
     if (editTitle.trim()) {
@@ -41,10 +23,12 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score > 0) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
-    if (score < 0) return 'text-red-600 bg-red-100 dark:bg-red-900/20';
-    return 'text-gray-600 bg-gray-100 dark:bg-gray-700';
+  const getScoreColor = (score?: number) => {
+    if (!score) return 'text-gray-600 bg-gray-100 dark:bg-gray-700';
+    if (score > 7) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
+    if (score > 5) return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
+    if (score > 3) return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
+    return 'text-red-600 bg-red-100 dark:bg-red-900/20';
   };
 
   return (
@@ -108,103 +92,23 @@ export default function OptionCard({ option, isSelected }: OptionCardProps) {
         )}
       </div>
 
-      {/* Score Display */}
-      <div className="mb-6">
-        <div className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-lg ${getScoreColor(option.score)}`}>
-          Score: {option.score}
-        </div>
-      </div>
-
-      {/* Pros and Cons */}
-      <div className="space-y-6">
-        {/* Pros Section */}
-        <div>
-          <h4 className="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
-            <span className="bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-full text-sm mr-2">
-              +{option.pros.length}
-            </span>
-            Pros
-          </h4>
-          <div className="space-y-2 mb-3">
-            {option.pros.map((pro) => (
-              <motion.div
-                key={pro.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-lg"
-              >
-                <span className="text-green-800 dark:text-green-200">{pro.text}</span>
-                <button
-                  onClick={() => removePro(option.id, pro.id)}
-                  className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
-                >
-                  <X size={16} />
-                </button>
-              </motion.div>
-            ))}
+      {/* AI Score Display */}
+      {option.score !== undefined && (
+        <div className="mb-6">
+          <div className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-lg ${getScoreColor(option.score)}`}>
+            <Sparkles size={16} className="mr-2" />
+            AI Score: {option.score}/10
           </div>
-          <form onSubmit={handleAddPro} className="flex space-x-2">
-            <input
-              type="text"
-              value={proText}
-              onChange={(e) => setProText(e.target.value)}
-              placeholder="Add a positive aspect..."
-              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-green-500"
-            />
-            <button
-              type="submit"
-              className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center"
-            >
-              <Plus size={16} />
-            </button>
-          </form>
         </div>
+      )}
 
-        {/* Cons Section */}
-        <div>
-          <h4 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center">
-            <span className="bg-red-100 dark:bg-red-900/20 px-2 py-1 rounded-full text-sm mr-2">
-              -{option.cons.length}
-            </span>
-            Cons
-          </h4>
-          <div className="space-y-2 mb-3">
-            {option.cons.map((con) => (
-              <motion.div
-                key={con.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex justify-between items-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg"
-              >
-                <span className="text-red-800 dark:text-red-200">{con.text}</span>
-                <button
-                  onClick={() => removeCon(option.id, con.id)}
-                  className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
-                >
-                  <X size={16} />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-          <form onSubmit={handleAddCon} className="flex space-x-2">
-            <input
-              type="text"
-              value={conText}
-              onChange={(e) => setConText(e.target.value)}
-              placeholder="Add a negative aspect..."
-              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-red-500"
-            />
-            <button
-              type="submit"
-              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center"
-            >
-              <Plus size={16} />
-            </button>
-          </form>
+      {/* Placeholder for AI analysis */}
+      {!option.score && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <Sparkles size={32} className="mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Use AI Assistant to analyze this option</p>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 }

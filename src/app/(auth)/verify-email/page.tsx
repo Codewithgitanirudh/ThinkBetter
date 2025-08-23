@@ -1,4 +1,4 @@
-        // src/app/(auth)/verify-email/page.tsx
+
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

@@ -2,9 +2,9 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
-import { Decision, Option, Pro, Con } from '@/types';
+import { Decision, Option } from '@/types';
 
 interface DecisionContextType {
   currentDecision: Decision;
@@ -13,15 +13,13 @@ interface DecisionContextType {
   addOption: (title: string) => void;
   updateOption: (id: string, title: string) => void;
   removeOption: (id: string) => void;
-  addPro: (optionId: string, text: string) => void;
-  removePro: (optionId: string, proId: string) => void;
-  addCon: (optionId: string, text: string) => void;
-  removeCon: (optionId: string, conId: string) => void;
-  calculateScores: () => void;
+  updateWithAIScores: (scores: Array<{ optionId: string; score: number }>, selectedOptionId: string) => void;
   saveDecision: () => Promise<string>;
-  helpMeDecide: () => void;
   resetForm: () => void;
   loading: boolean;
+  removeDecision: (id: string) => Promise<void>;
+  isopen: boolean;
+  setIsopen: (isopen: boolean) => void;
 }
 
 const initialDecision: Decision = {
@@ -37,6 +35,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
   const [currentDecision, setCurrentDecision] = useState<Decision>(initialDecision);
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isopen, setIsopen] = useState(false);
   const { user } = useAuth();
 
   // Fetch decisions from Firestore for the authenticated user
@@ -84,9 +83,6 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     const newOption: Option = {
       id: Date.now().toString(),
       title,
-      pros: [],
-      cons: [],
-      score: 0,
     };
 
     setCurrentDecision(prev => ({
@@ -113,99 +109,15 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Add a pro to an option
-  const addPro = (optionId: string, text: string) => {
-    const newPro: Pro = {
-      id: Date.now().toString(),
-      text,
-    };
-
+  // Update options with AI scores and set selected option
+  const updateWithAIScores = (scores: Array<{ optionId: string; score: number }>, selectedOptionId: string) => {
     setCurrentDecision(prev => ({
       ...prev,
-      options: prev.options.map(option =>
-        option.id === optionId
-          ? { ...option, pros: [...option.pros, newPro] }
-          : option
-      ),
-    }));
-
-    calculateScores();
-  };
-
-  // Remove a pro from an option
-  const removePro = (optionId: string, proId: string) => {
-    setCurrentDecision(prev => ({
-      ...prev,
-      options: prev.options.map(option =>
-        option.id === optionId
-          ? { ...option, pros: option.pros.filter(pro => pro.id !== proId) }
-          : option
-      ),
-    }));
-
-    calculateScores();
-  };
-
-  // Add a con to an option
-  const addCon = (optionId: string, text: string) => {
-    const newCon: Con = {
-      id: Date.now().toString(),
-      text,
-    };
-
-    setCurrentDecision(prev => ({
-      ...prev,
-      options: prev.options.map(option =>
-        option.id === optionId
-          ? { ...option, cons: [...option.cons, newCon] }
-          : option
-      ),
-    }));
-
-    calculateScores();
-  };
-
-  // Remove a con from an option
-  const removeCon = (optionId: string, conId: string) => {
-    setCurrentDecision(prev => ({
-      ...prev,
-      options: prev.options.map(option =>
-        option.id === optionId
-          ? { ...option, cons: option.cons.filter(con => con.id !== conId) }
-          : option
-      ),
-    }));
-
-    calculateScores();
-  };
-
-  // Calculate scores for all options
-  const   calculateScores = () => {
-    setCurrentDecision(prev => ({
-      ...prev,
-      options: prev.options.map(option => ({
-        ...option,
-        score: option.pros.length - option.cons.length,
-      })),
-    }));
-  };
-
-  // Help me decide function
-  const helpMeDecide = () => {
-    if (currentDecision.options.length === 0) return;
-
-    // Find the highest score
-    const highestScore = Math.max(...currentDecision.options.map(option => option.score));
-    
-    // Find all options with the highest score
-    const topOptions = currentDecision.options.filter(option => option.score === highestScore);
-    
-    // If there's a tie, randomly select one
-    const selectedOption = topOptions[Math.floor(Math.random() * topOptions.length)];
-    
-    setCurrentDecision(prev => ({
-      ...prev,
-      selectedOptionId: selectedOption.id,
+      options: prev.options.map(option => {
+        const scoreData = scores.find(s => s.optionId === option.id);
+        return scoreData ? { ...option, score: scoreData.score } : option;
+      }),
+      selectedOptionId,
     }));
   };
 
@@ -225,7 +137,6 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
         title: currentDecision.title,
         options: currentDecision.options,
         timestamp: serverTimestamp(),
-        selectedOptionId: currentDecision.selectedOptionId,
       };
 
       // Add the document to Firestore
@@ -248,6 +159,17 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const removeDecision = async (id : string) => {
+    try {
+      await deleteDoc(doc(db, "users", user?.uid || "", "decisions", id))
+      setDecisions(prev => prev.filter(decision => decision.id !== id))
+      setIsopen(false)
+    } catch (error) {
+      console.error('Error deleting decision:', error);
+      throw error;
+    }
+  }
+
   // Reset the form
   const resetForm = () => {
     setCurrentDecision(initialDecision);
@@ -262,15 +184,13 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
         addOption,
         updateOption,
         removeOption,
-        addPro,
-        removePro,
-        addCon,
-        removeCon,
-        calculateScores,
+        updateWithAIScores,
         saveDecision,
-        helpMeDecide,
         resetForm,
         loading,
+        removeDecision,
+        isopen,
+        setIsopen
       }}
     >
       {children}

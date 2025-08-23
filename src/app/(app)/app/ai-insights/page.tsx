@@ -17,7 +17,7 @@ export default function AIInsightsPage() {
       : 0;
     
     const mostFrequentScore = decisions.length > 0 
-      ? Math.max(...decisions.flatMap(d => d.options.map(o => o.score)))
+      ? Math.max(...decisions.flatMap(d => d.options.map(o => o.score || 0)))
       : 0;
 
     return [
@@ -55,7 +55,7 @@ export default function AIInsightsPage() {
   const insights = getInsightCards();
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
+    <div className="relative min-h-screen p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
@@ -129,21 +129,9 @@ export default function AIInsightsPage() {
                     {currentDecision.title}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
+                    <div> 
                       <p className="text-sm text-gray-600 dark:text-gray-300">Options</p>
                       <p className="text-xl font-bold text-purple-600">{currentDecision.options.length}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">Total Pros</p>
-                      <p className="text-xl font-bold text-green-600">
-                        {currentDecision.options.reduce((sum, opt) => sum + opt.pros.length, 0)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">Total Cons</p>
-                      <p className="text-xl font-bold text-red-600">
-                        {currentDecision.options.reduce((sum, opt) => sum + opt.cons.length, 0)}
-                      </p>
                     </div>
                   </div>
                 </div>
