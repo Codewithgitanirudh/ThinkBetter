@@ -40,6 +40,16 @@ export default function Sidebar() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [isDrawerOpen]);
+
+  if (!isDrawerOpen) return null;
+
   const navigation = [
     {
       name: "Decision Maker",

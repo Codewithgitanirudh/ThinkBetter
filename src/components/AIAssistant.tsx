@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDecision } from "@/context/DecisionContext";
 import {
@@ -11,7 +11,6 @@ import {
   Lightbulb,
   X,
 } from "lucide-react";
-import { AIAnalysis } from "@/types";
 
 export default function AIAssistant() {
   const { currentDecision, isopen, setIsopen, analysis } = useDecision();
@@ -22,6 +21,16 @@ export default function AIAssistant() {
     if (confidence >= 60) return "text-accent";
     return "text-accent";
   };
+
+  useEffect(() => {
+    if (isopen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [isopen]);
+
+  if (!isopen) return null;
 
   return (
     <>
