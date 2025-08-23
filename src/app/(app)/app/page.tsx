@@ -18,10 +18,10 @@ export default function AppHome() {
                 ThinkBetter helps you weigh options with structured pros/cons, AI-powered insights, and personalized history — so you can act with clarity and confidence.
               </p>
               <div className="mt-6 flex items-center gap-3">
-                <Link href="#make" scroll={false} replace className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 ease-in-out hover:text-primary-dark">
+                <Link href="#make" scroll={false} replace className="px-6 py-3 text-sm md:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 ease-in-out hover:text-primary-dark">
                   Start now
                 </Link>
-                <Link href="/app/history" className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-300 ease-in-out">
+                <Link href="/app/history" className="px-6 py-3 text-sm md:text-base bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-300 ease-in-out">
                   View history
                 </Link>
               </div>
