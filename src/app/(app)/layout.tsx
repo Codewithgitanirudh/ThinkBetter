@@ -12,7 +12,7 @@ export default function AppLayout({
     <div className="flex h-screen bg-bgColor text-text flex-col md:flex-row">
       <MobileHeader />
       <Sidebar />
-      <main className="flex-1 ml-0 h-screen">
+      <main className="flex-1 ml-0 h-screen overflow-y-auto">
         {children}
       </main>
     </div>

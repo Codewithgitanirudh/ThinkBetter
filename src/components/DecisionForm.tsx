@@ -21,7 +21,7 @@ export default function DecisionForm() {
   } = useDecision();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [optionTitle, setOptionTitle] = useState("");
-  console.log(currentDecision, "currentDecision");
+
   const handleAddOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (optionTitle.trim() && currentDecision.options.length < 5) {
