@@ -73,7 +73,7 @@ export default function AIAssistant() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 50 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl bg-gray-800 rounded-2xl shadow-2xl z-50 max-h-[80vh] border border-gray-700 overflow-hidden mr-10"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[90%] md:max-w-5xl bg-gray-800 rounded-2xl shadow-2xl z-50 max-h-[80vh] border border-gray-700 overflow-hidden md:mr-10"
               style={{ zIndex: 9999 }}
             >
               <div className="p-4 md:p-6">
