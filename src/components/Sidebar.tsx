@@ -71,12 +71,6 @@ export default function Sidebar() {
       current: pathname === "/app/ai-insights",
       badge: "New",
     },
-    {
-      name: "Analytics",
-      href: "/analytics",
-      icon: TrendingUp,
-      current: pathname === "/analytics",
-    },
   ];
 
   const sidebarVariants = {

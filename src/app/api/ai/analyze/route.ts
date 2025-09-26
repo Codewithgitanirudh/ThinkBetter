@@ -6,6 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { decision }: { decision: Decision } = body;
+    console.log(decision, "decisionssss");
 
     if (!decision || !decision.title) {
       return NextResponse.json(
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const analysis = await aiService.analyzeDecision(decision);
+    console.log(analysis, "analysisss");
 
     return NextResponse.json({
       success: true,

@@ -15,6 +15,7 @@ import { AIAnalysis, Decision } from "@/types";
         },
         body: JSON.stringify({ decision: currentDecision }),
       });
+      console.log(response, "response");
 
       if (!response.ok) {
         throw new Error(`API error: ${response.statusText}`);

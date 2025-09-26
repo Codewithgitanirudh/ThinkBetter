@@ -13,7 +13,7 @@ export class GroqProvider implements AIProvider {
   private baseURL = 'https://api.groq.com/openai/v1';
   private model: string;
 
-  constructor(apiKey: string, model = 'llama3-8b-8192') {
+  constructor(apiKey: string, model = 'llama-3.1-8b-instant') {
     this.apiKey = apiKey;
     this.model = model;
   }
@@ -24,7 +24,20 @@ export class GroqProvider implements AIProvider {
       const response = await this.makeRequest(prompt);
       
       // Parse and validate the response
-      const analysis = JSON.parse(response);
+      let analysis;
+      try {
+        // Try to find the first valid JSON object in the response string
+        const firstBrace = response.indexOf('{');
+        const lastBrace = response.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          const jsonString = response.slice(firstBrace, lastBrace + 1);
+          analysis = JSON.parse(jsonString);
+        } else {
+          throw new SyntaxError('No valid JSON object found in response');
+        }
+      } catch (err) {
+        throw new SyntaxError('Failed to parse Groq response as JSON: ' + (err instanceof Error ? err.message : String(err)));
+      }
       return this.validateAnalysis(analysis);
     } catch (error) {
       console.error('Groq analysis error:', error);
