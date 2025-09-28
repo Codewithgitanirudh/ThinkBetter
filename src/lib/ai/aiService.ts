@@ -16,9 +16,6 @@ export class AIService {
     const groqKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
     const hfKey = process.env.NEXT_PUBLIC_HUGGINGFACE_API_KEY;
     const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    console.log(groqKey, "groqKey");
-    console.log(hfKey, "hfKey");
-    console.log(geminiKey, "geminiKey");
 
     if (groqKey) {
       this.providers.set('groq', new GroqProvider(groqKey));
@@ -58,7 +55,7 @@ export class AIService {
   }
 
   async analyzeDecision(decision: Decision): Promise<AIAnalysis> {
-    console.log(this.currentProvider, "providersss");
+
     if (!this.currentProvider) {
       return this.getFallbackAnalysis(decision);
     }
@@ -72,7 +69,7 @@ export class AIService {
   }
 
   async generateSuggestions(decision: Decision): Promise<AISuggestion[]> {
-    console.log(this.currentProvider, "providersss");
+
     if (!this.currentProvider) {
       return this.getFallbackSuggestions(decision);
     }

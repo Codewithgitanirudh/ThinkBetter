@@ -14,8 +14,7 @@ import {
 
 export default function AIAssistant() {
   const { currentDecision, isopen, setIsopen, analysis } = useDecision();
-  console.log(analysis, "analysis");
-
+  
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return "text-primary";
     if (confidence >= 60) return "text-accent";

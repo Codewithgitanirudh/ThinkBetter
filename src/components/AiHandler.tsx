@@ -15,14 +15,13 @@ import { AIAnalysis, Decision } from "@/types";
         },
         body: JSON.stringify({ decision: currentDecision }),
       });
-      console.log(response, "response");
 
       if (!response.ok) {
         throw new Error(`API error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log(data, "data");
+
       setIsAnalyzing(false);
       return data.analysis;
     } catch (error) {
