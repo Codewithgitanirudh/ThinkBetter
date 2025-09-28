@@ -180,7 +180,7 @@ export default function AIAssistant() {
                           <div className="flex items-center space-x-2 mb-2">
                             <AlertTriangle size={16} className="text-accent" />
                             <h3 className="font-semibold text-accent">
-                              Risk Factors
+                              Negative Factors
                             </h3>
                           </div>
                           <ul className="space-y-1">
@@ -201,7 +201,7 @@ export default function AIAssistant() {
                           <div className="flex items-center space-x-2 mb-2">
                             <Lightbulb size={16} className="text-primary" />
                             <h3 className="font-semibold text-primary">
-                              Opportunities
+                              Positive Factors
                             </h3>
                           </div>
                           <ul className="space-y-1">
